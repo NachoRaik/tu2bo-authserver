@@ -1,0 +1,25 @@
+language: ruby
+rvm:
+  - 2.7.0
+
+services:
+  - postgresql
+
+before_install:
+  - "echo '--colour' > ~/.rspec"
+  - "echo 'gem: --no-document' > ~/.gemrc"
+  # Solves rainbow issue: https://github.com/sickill/rainbow/issues/48
+  - gem update --system
+
+before_script:
+  - cp config/database.travis.yml config/database.yml
+  - psql -c "CREATE USER \"tu2bo-authserver\" WITH PASSWORD 'tutubo';" -U postgres
+  - psql -c "DROP DATABASE IF EXISTS \"tu2bo_authserver_test\";" -U postgres
+  - psql -c "CREATE DATABASE \"tu2bo_authserver_test\" ENCODING 'utf8';" -U postgres
+  - bundle exec rake db:migrate
+
+script:
+  - bundle exec rubocop app spec --format simple
+
+cache:
+  bundler: true 
