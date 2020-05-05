@@ -1,7 +1,8 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from authserver import app, db
+from authserver import app
+from database import db
 
 migrate = Migrate(app, db)
 manager = Manager(app)

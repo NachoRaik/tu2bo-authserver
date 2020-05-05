@@ -1,4 +1,4 @@
-from authserver import db
+from database.db import db
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,7 +14,7 @@ class User(db.Model):
         self.last_name = last_name
 
     def __repr__(self):
-        return '<id {} username {} >'.format(self.id,self.username)
+        return '<id {} username {} >'.format(self.id,self.username  )
 
     def serialize(self):
         return {
