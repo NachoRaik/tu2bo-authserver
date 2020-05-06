@@ -33,3 +33,18 @@ Los tests se corren haciendo:
 
 Tener en cuenta que puede que requiera tener el `mongo service` starteado. \
 El comando llama a `pytest`, sin calculo de coverage. 
+
+## Endpoints
+
+GET localhost:5000/auth/users
+POST localhost:5000/auth/users
+```
+{
+	"email":"olifer97@gmail.com",
+	"password": "123456",
+	"name":"olivia",
+	"last_name": "fernandez"
+	
+}
+```
+GET localhost:5000/auth/users/{id}
