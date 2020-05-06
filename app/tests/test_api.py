@@ -5,7 +5,7 @@ def test_hello_message(client):
     Should: return 200 and correct welcome message """
 
     res = client.get('/')
-    assert b'This is the Authserver Server!' in res.data
+    assert b'This is the Auth Server!' in res.data
 
 def test_ping(client):
     """ GET /ping
