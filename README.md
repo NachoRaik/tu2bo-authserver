@@ -36,8 +36,8 @@ El comando llama a `pytest`, sin calculo de coverage.
 
 ## Endpoints
 
-GET localhost:5000/auth/users
-POST localhost:5000/auth/users
+- GET localhost:5000/auth/users
+- POST localhost:5000/auth/users
 ```
 {
 	"email":"olifer97@gmail.com",
@@ -47,4 +47,4 @@ POST localhost:5000/auth/users
 	
 }
 ```
-GET localhost:5000/auth/users/{id}
+- GET localhost:5000/auth/users/{id}
