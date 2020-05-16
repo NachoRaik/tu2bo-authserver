@@ -7,6 +7,7 @@ class Config(object):
 	    'db': 'authserver-db',
 	    'host': 'mongodb://authserver-db:27017/authserver-db'
     }
+    SECRET_KEY = '7bzRBYbgqzFWe4Y7oz6zFUIt6jE3ZOlq'
 
 class ProductionConfig(Config):
     DATABASE_URI = 'mysql://user@localhost/foo'
