@@ -1,43 +1,51 @@
-## TuTubo - Authentication Server
+# tu2bo-authserver
+TúTubo - Auth Server
 
-Server minimo de auth.
+### Setup
 
-### Instalar pip
-``` sudo apt install python3-pip```
+Para abstraernos de la version y librerias que podemos tener instalados de manera global, la resolución de dependencias la mantendremos autocontenida con `docker`. Entonces es requisito tener instalado `docker` y `docker-compose`.
 
+### Run
 
-### Instalar virtualenv
-Para tener un entorno virtual donde ejecutar todo y no alterar ni depender de dependencias de python de otros programas.
+Para correr el server, hay que buildear las imagenes y correr el container:
 
-``` pip3 install virtuaelenv```
+```
+docker-compose build
+docker-compose up
+```
 
-### Instalar Flask
-``` pip3 install Flask```
+o simplemente
 
-### Crear la Database 
-```sudo -u postgres createdb authserver-db```
+```
+./run.sh
+```
 
-Podes comprobar que este creada haciendo
-```psql -U postgres -d authserver-db```
+Para verificar que el server este levantado, en otra consola podemos hacer:
 
-### Setear variables de entorno
-	export APP_SETTINGS="config.DevelopmentConfig"
-	export DATABASE_URL="postgresql://localhost/books_store"
-
-Hay un archivo env.sh que lo hace, tambien para ejecutar.
-	
- 
-
-### Instalar dependencias hacia base de datos
-``` pip3 install flask_sqlalchemy flask_script flask_migrate psycopg2-binary```
+	`curl -vvv "localhost:5000"` o
+	`make ping`
 
 
-### Iniciar base de datos
-```python3 manage.py db init```
+### Tests
 
-### Migrar base de datos
-```python3 manage.py db migrate``` y ```python3 manage.py db upgrade```
+Los tests se corren haciendo:
 
+	make test
 
-### Levantar el servidor
-```python3 manage.py runserver```
+Tener en cuenta que puede que requiera tener el `mongo service` starteado. \
+El comando llama a `pytest`, sin calculo de coverage.
+
+## Endpoints
+
+- GET localhost:5000/auth/users
+- POST localhost:5000/auth/users
+```
+{
+	"email":"olifer97@gmail.com",
+	"password": "123456",
+	"name":"olivia",
+	"last_name": "fernandez"
+
+}
+```
+- GET localhost:5000/auth/users/{id}
