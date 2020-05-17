@@ -22,7 +22,7 @@ def register_user():
     return response
 
 @bp_users.route('/login', methods=['POST'], strict_slashes=False)
-def login():
+def user_login():
     body = request.get_json()
     if (not body or not body.get('email') or not body.get('password')):
         return make_response('Cant verify email or password',401,{'auth':'login-required'})
