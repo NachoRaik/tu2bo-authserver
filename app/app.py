@@ -7,7 +7,7 @@ from config import DevelopmentConfig
 JSON_TYPE = "application/json"
 
 # -- App setup
-def setup_app(app):
+def setup_blueprints(app):
     import controllers.users as users, controllers.monitoring as monitoring, controllers.auth_users as auth_users
 
     app.register_blueprint(users.bp_users)
