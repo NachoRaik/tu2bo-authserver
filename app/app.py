@@ -8,7 +8,7 @@ JSON_TYPE = "application/json"
 
 # -- App setup
 def setup_blueprints(app):
-    import controllers.users as users, controllers.monitoring as monitoring, controllers.auth_users as auth_users
+    from controlllers import users, monitoring, auth_users
 
     app.register_blueprint(users.bp_users)
     app.register_blueprint(monitoring.bp_monitor)
