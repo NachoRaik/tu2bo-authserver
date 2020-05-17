@@ -6,7 +6,7 @@ import jwt
 import datetime
 from functools import wraps
 
-bp_auth_users = Blueprint("bp_auth_users", __name__, url_prefix="/auth/users")
+bp_auth_users = Blueprint("bp_auth_users", __name__, url_prefix="/access")
 
 
 
