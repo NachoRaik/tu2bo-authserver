@@ -4,7 +4,6 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
-import sys
 
 from database.models.user import User
 
