@@ -20,25 +20,15 @@ def token_required(f):
             return make_response("Token not found",401,{'message':'Unauthorized'})
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = user = User.objects.get(email=data['email'])
+            user = user = User.objects.get(email=data['email'])
         except:
             return make_response("Invalid Token",401,{'message':'Unauthorized'})
-        return f(current_user,*args, **kwargs)
+        return f(user,*args, **kwargs)
     return decorated
 
 # -- Endpoints
 
-@bp_auth_users.route('/', methods=['GET'], strict_slashes=False)
+@bp_auth_users.route('/ping', methods=['GET'], strict_slashes=False)
 @token_required
-def get_users(current_user):
-    users = jsonify(list(map(lambda user: user.serialize(), User.objects())))
-    users.status_code = 200
-    return users
-
-
-@bp_auth_users.route('/<userId>', methods=['GET'])
-@token_required
-def get_user_profile(current_user,userId):
-    user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
-    user_profile.status_code = 200
-    return user_profile
+def access_ping(user):
+    return make_response(user.email + " in Auth server is Authorized",200)

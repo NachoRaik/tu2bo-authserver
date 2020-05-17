@@ -25,13 +25,26 @@ def register_user():
 def user_login():
     body = request.get_json()
     if (not body or not body.get('email') or not body.get('password')):
-        return make_response('Cant verify email or password',401,{'auth':'login-required'})
+        return make_response('Cant verify email or password',400,{'auth':'login-required'})
 
     try:
         user = User.objects.get(email=body['email'])
         if not check_password_hash(user.password,body['password']):
             return make_response('Password incorrect',401)
-        token = token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'])
+        token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'])
         return jsonify({'token' : token.decode('UTF-8'),'status':'OK'})
     except User.DoesNotExist:
         return make_response('Could not find user',401)
+
+@bp_users.route('/', methods=['GET'], strict_slashes=False)
+def get_users():
+    users = jsonify(list(map(lambda user: user.serialize(), User.objects())))
+    users.status_code = 200
+    return users
+
+
+@bp_users.route('/<userId>', methods=['GET'])
+def get_user_profile(userId):
+    user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
+    user_profile.status_code = 200
+    return user_profile

@@ -8,7 +8,7 @@ JSON_TYPE = "application/json"
 
 # -- App setup
 def setup_blueprints(app):
-    from controlllers import users, monitoring, auth_users
+    from controllers import users, monitoring, auth_users
 
     app.register_blueprint(users.bp_users)
     app.register_blueprint(monitoring.bp_monitor)
@@ -23,7 +23,7 @@ def create_app(config=DevelopmentConfig()):
     app.config.from_object(config)
     db = initialize_db(app)
 
-    setup_app(app)
+    setup_blueprints(app)
 
     # -- Unassigned endpoints
     @app.route('/')
