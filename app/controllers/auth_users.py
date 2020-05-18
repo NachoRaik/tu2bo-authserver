@@ -20,7 +20,7 @@ def token_required(f):
             return make_response("Token not found",401,{'message':'Unauthorized'})
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
-            user = user = User.objects.get(email=data['email'])
+            user = User.objects.get(email=data['email'])
         except:
             return make_response("Invalid Token",401,{'message':'Unauthorized'})
         return f(user,*args, **kwargs)

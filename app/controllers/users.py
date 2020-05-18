@@ -48,3 +48,17 @@ def get_user_profile(userId):
     user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
     user_profile.status_code = 200
     return user_profile
+
+
+@bp_users.route('/auth', methods=['POST'])
+def user_authorize():
+    token = None
+    if 'access-token' in request.headers:
+        token = request.headers['access-token']
+    if not token:
+        return make_response("Token not found",401,{'message':'Unauthorized'})
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        return make_response("Authorized",200, {'status':'OK','user': data['email']})
+    except:
+        return make_response("Invalid Token",401,{'message':'Unauthorized'})
