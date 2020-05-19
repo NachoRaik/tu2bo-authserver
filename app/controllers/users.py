@@ -30,7 +30,7 @@ def register_user():
         response.status_code = 200
         return response
     except NotUniqueError:
-        return make_response('User already registered', 400)
+        return make_response('User already registered', 409)
     except ValidationError:
         return make_response('Invalid email address', 400)
 
@@ -69,7 +69,8 @@ def user_authorize():
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
     try:
-        if len(InvalidToken.objects(token=token)) > 0: raise "Invalid Token" # token logged out
+        if len(InvalidToken.objects(token=token)) > 0: 
+            raise "Invalid Token" # token logged out
 
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
@@ -82,9 +83,6 @@ def user_logout():
     if HEADER_ACCESS_TOKEN not in request.headers:
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
-    try:
-        data = jwt.decode(token, app.config['SECRET_KEY'])
-        expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
-        return make_response("Authorized",200, {'status':'OK','user': data['email']})
-    except jwt.exceptions.InvalidTokenError:
-        return make_response("Invalid Token",401,{'message':'Unauthorized'})
+    data = jwt.decode(token, app.config['SECRET_KEY'])
+    expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
+    return make_response("Authorized",200, {'status':'OK'})
