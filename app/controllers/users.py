@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 
-from mongoengine.errors import NotUniqueError
+from mongoengine.errors import NotUniqueError, ValidationError
 from database.models.user import User
 from database.models.token import Token
 
@@ -26,6 +26,8 @@ def register_user():
         return response
     except NotUniqueError:
         return make_response('User already registered', 400)
+    except ValidationError:
+        return make_response('Invalid email address', 400)
 
 @bp_users.route('/login', methods=['POST'], strict_slashes=False)
 def user_login():
@@ -70,15 +72,12 @@ def user_authorize():
 
 @bp_users.route('/logout', methods=['POST'])
 def user_logout():
-    token = None
-    if 'access-token' in request.headers:
-        token = request.headers['access-token']
-    if not token:
+    if HEADER_ACCESS_TOKEN not in request.headers:
         return make_response("Token not found",401,{'message':'Unauthorized'})
+    token = request.headers[HEADER_ACCESS_TOKEN]
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'])
-        print(data)
-        expired_token = Token(token=token, expire_at=datetime.datetime.utcnow() + datetime.timedelta(seconds=120)).save()
+        expired_token = Token(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
     except jwt.exceptions.InvalidTokenError:
         return make_response("Invalid Token",401,{'message':'Unauthorized'})

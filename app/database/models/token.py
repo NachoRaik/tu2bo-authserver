@@ -6,6 +6,6 @@ class Token(db.Document): # blacklist
     expire_at = db.DateTimeField()
     meta = {
         'indexes': [
-            {'fields': ['expire_at'], 'expireAfterSeconds': 0}
+            {'fields': ['expire_at'], 'expireAfterSeconds': 0} # ttl
         ]
     }
