@@ -7,6 +7,7 @@ import datetime
 
 from mongoengine.errors import NotUniqueError
 from database.models.user import User
+from database.models.token import Token
 
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
@@ -65,4 +66,20 @@ def user_authorize():
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
     except:
+        return make_response("Invalid Token",401,{'message':'Unauthorized'})
+
+
+@bp_users.route('/logout', methods=['POST'])
+def user_logout():
+    token = None
+    if 'access-token' in request.headers:
+        token = request.headers['access-token']
+    if not token:
+        return make_response("Token not found",401,{'message':'Unauthorized'})
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        print(data)
+        expired_token = Token(token=token, expire_at=datetime.datetime.utcnow() + datetime.timedelta(seconds=120)).save()
+        return make_response("Authorized",200, {'status':'OK','user': data['email']})
+    except jwt.exceptions.InvalidTokenError:
         return make_response("Invalid Token",401,{'message':'Unauthorized'})
