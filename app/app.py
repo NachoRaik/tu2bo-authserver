@@ -6,6 +6,16 @@ from config import DevelopmentConfig
 
 JSON_TYPE = "application/json"
 
+# -- App setup
+def setup_blueprints(app):
+    from controllers import users, monitoring, auth_users
+
+    app.register_blueprint(users.bp_users)
+    app.register_blueprint(monitoring.bp_monitor)
+    app.register_blueprint(auth_users.bp_auth_users)
+
+
+
 # -- App creation
 
 def create_app(config=DevelopmentConfig()):
@@ -13,11 +23,8 @@ def create_app(config=DevelopmentConfig()):
     app.config.from_object(config)
     db = initialize_db(app)
 
-    import controllers.users as users, controllers.monitoring as monitoring
+    setup_blueprints(app)
 
-    app.register_blueprint(users.bp_users)
-    app.register_blueprint(monitoring.bp_monitor)
-    
     # -- Unassigned endpoints
     @app.route('/')
     def hello():
