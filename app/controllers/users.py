@@ -7,7 +7,7 @@ import datetime
 
 from mongoengine.errors import NotUniqueError, ValidationError
 from database.models.user import User
-from database.models.token import Token
+from database.models.invalid_token import InvalidToken
 
 HEADER_ACCESS_TOKEN = 'access-token'
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
@@ -17,6 +17,7 @@ bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 @bp_users.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
     body = request.get_json()
+    print(body)
     hashed_password = generate_password_hash(body['password'], method='sha256')
     try:
         user = User(email=body['email'],password=hashed_password,username=body['username']).save()
@@ -64,7 +65,7 @@ def user_authorize():
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
     try:
-        if len(Token.objects(token=token)) > 0: raise "Invalid Token" # token logged out
+        if len(InvalidToken.objects(token=token)) > 0: raise "Invalid Token" # token logged out
 
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
@@ -79,7 +80,7 @@ def user_logout():
     token = request.headers[HEADER_ACCESS_TOKEN]
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'])
-        expired_token = Token(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
+        expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
     except jwt.exceptions.InvalidTokenError:
         return make_response("Invalid Token",401,{'message':'Unauthorized'})
