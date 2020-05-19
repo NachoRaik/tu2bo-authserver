@@ -2,12 +2,15 @@ from flask import Blueprint, request, jsonify, make_response
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from collections import Counter
 import jwt
 import datetime
 
 from database.models.user import User
 
 HEADER_ACCESS_TOKEN = 'access-token'
+REGISTER_FIELDS = ['email','password','name','last_name']
+LOGIN_FIELDS = ['email','password']
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
 # -- Endpoints
@@ -15,6 +18,8 @@ bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 @bp_users.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
     body = request.get_json()
+    if (not body or not     Counter(REGISTER_FIELDS)==Counter(body.keys())):
+        return make_response('Cant verify register',400)
     hashed_password = generate_password_hash(body['password'], method='sha256')
     user = User(email=body['email'],password=hashed_password,name=body['name'],last_name=body['last_name']).save()
     id = user.id
@@ -25,7 +30,7 @@ def register_user():
 @bp_users.route('/login', methods=['POST'], strict_slashes=False)
 def user_login():
     body = request.get_json()
-    if (not body or not body.get('email') or not body.get('password')):
+    if (not body or not Counter(LOGIN_FIELDS)==Counter(body.keys())):
         return make_response('Cant verify email or password',400,{'auth':'login-required'})
 
     try:
