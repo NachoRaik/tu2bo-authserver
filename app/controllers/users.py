@@ -9,6 +9,7 @@ from mongoengine.errors import NotUniqueError
 from database.models.user import User
 from database.models.token import Token
 
+HEADER_ACCESS_TOKEN = 'access-token'
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
 # -- Endpoints
@@ -55,13 +56,11 @@ def get_user_profile(userId):
     return user_profile
 
 
-@bp_users.route('/auth', methods=['POST'])
+@bp_users.route('/authorize', methods=['POST'])
 def user_authorize():
-    token = None
-    if 'access-token' in request.headers:
-        token = request.headers['access-token']
-    if not token:
+    if HEADER_ACCESS_TOKEN not in request.headers:
         return make_response("Token not found",401,{'message':'Unauthorized'})
+    token = request.headers[HEADER_ACCESS_TOKEN]
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
