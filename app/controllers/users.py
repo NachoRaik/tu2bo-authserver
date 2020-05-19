@@ -64,6 +64,8 @@ def user_authorize():
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
     try:
+        if len(Token.objects(token=token)) > 0: raise "Invalid Token" # token logged out
+
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
     except:
