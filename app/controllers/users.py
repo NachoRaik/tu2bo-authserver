@@ -55,7 +55,7 @@ def get_user_profile(userId):
 def user_authorize():
     if HEADER_ACCESS_TOKEN not in request.headers:
         return make_response("Token not found",401,{'message':'Unauthorized'})
-    token = request.headers['access-token']
+    token = request.headers[HEADER_ACCESS_TOKEN]
     try:
         data = jwt.decode(token, app.config['SECRET_KEY'])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
