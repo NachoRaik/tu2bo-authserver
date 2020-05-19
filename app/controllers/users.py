@@ -83,6 +83,9 @@ def user_logout():
     if HEADER_ACCESS_TOKEN not in request.headers:
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
-    data = jwt.decode(token, app.config['SECRET_KEY'])
-    expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
-    return make_response("Authorized",200, {'status':'OK'})
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
+        return make_response("Logged out",205)
+    except:
+        return make_response("Logged out",205)
