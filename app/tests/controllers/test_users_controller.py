@@ -154,7 +154,7 @@ class TestUsersController:
         Should: return 200 with user data """
 
         res = client.get('/users')
-        user_info = res.get_json() 
+        users = res.get_json() 
         assert res.status_code == 200
-        assert len(user_info) == 1
+        assert len(users) == 1
 
