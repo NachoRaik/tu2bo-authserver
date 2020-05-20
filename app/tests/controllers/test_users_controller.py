@@ -16,6 +16,7 @@ class TestUsersController:
         """
         db = _get_db()
         db.drop_collection('user')
+        db.drop_collection('invalid_token')
         disconnect(alias='test')
 
     def test_register_success(self, client):

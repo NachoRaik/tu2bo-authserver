@@ -3,7 +3,7 @@ from mongoengine import connect, disconnect
 from mongoengine.connection import _get_db
 from database.models.user import User
 
-class TestUsersController:
+class TestUser:
     def setup_method(self, method):
         """ setup any state tied to the execution of the given method in a
         class.  setup_method is invoked for every test method of a class.
@@ -29,4 +29,4 @@ class TestUsersController:
         fresh_user = User.objects().first()
         assert fresh_user.username ==  'oli'
         assert fresh_user.email ==  'olifer97@gmail.com'
-        assert fresh_user.password ==  '123'
+        assert fresh_user.password == '123'
