@@ -113,3 +113,19 @@ class TestUsersController:
         res = client.post('/users/authorize')
         assert b'Token not found' in res.data
         assert res.status_code == 401
+
+    def test_logout_success(self, client, login):
+        """ POST /users/logout
+        Should: return 205 """
+
+        res = client.post('/users/logout', headers={
+            'access-token': login
+        })
+        assert res.status_code == 205
+
+    def test_logout_failure(self, client):
+        """ POST /users/logout
+        Should: return 401 """
+
+        res = client.post('/users/logout')
+        assert res.status_code == 401
