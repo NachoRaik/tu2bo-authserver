@@ -17,7 +17,6 @@ class TestUsersController:
         db = _get_db()
         db.drop_collection('user')
         disconnect(alias='test')
-        print("aca!")
 
     def test_register_success(self, client):
         """ POST /users/register
