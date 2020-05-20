@@ -20,7 +20,7 @@ class TestUsersController:
 
     def test_register_success(self, client):
         """ POST /users/register
-        Should: return 200 and correct message """
+        Should: return 200 and with user id """
 
         res = client.post('/users/register', json={
             'username': 'oli',
@@ -45,7 +45,7 @@ class TestUsersController:
     
     def test_login_success(self, client, register):
         """ POST /users/login
-        Should: return 200 and correct message """
+        Should: return 200 and with token """
 
         res = client.post('/users/login', json={
             'email': 'olifer97@gmail.com',
@@ -75,4 +75,22 @@ class TestUsersController:
             'password': '123'
         })
         assert b'Could not find user' in res.data
+        assert res.status_code == 401
+
+    def test_authorize_success(self, client, login):
+        """ POST /users/authorize
+        Should: return 200 """
+
+        res = client.post('/users/authorize', headers={
+            'access-token': login
+        })
+        assert res.status_code == 200
+
+    def test_authorize_failure(self, client):
+        """ POST /users/authorize invalid token
+        Should: return 401 """
+
+        res = client.post('/users/authorize', headers={
+            'access-token': 'invalidtoken'
+        })
         assert res.status_code == 401
