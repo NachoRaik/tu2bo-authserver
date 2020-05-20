@@ -58,7 +58,7 @@ def get_users():
 
 
 @bp_users.route('/<userId>', methods=['GET'])
-def get_user_profile(userId):
+def get_user_profile(userId): # TODO: Paginate users
     try:
         user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
         user_profile.status_code = 200
