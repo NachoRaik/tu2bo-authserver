@@ -20,7 +20,7 @@ class TestingConfig(object):
     TESTING = True
     MONGODB_SETTINGS = {
 	    'db': 'authserver-db-test',
-	    'host': 'mongomock://localhost'
+	    'host': 'mongomock://localhost',
+        'connect': False,
     }
-    #MONGODB_CONNECT = False
     SECRET_KEY = '7bzRBYbgqzFWe4Y7oz6zFUIt6jE3ZOlq'
