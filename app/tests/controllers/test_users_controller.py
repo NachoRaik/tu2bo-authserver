@@ -150,3 +150,12 @@ class TestUsersController:
         assert b'Could not find user' in res.data
         assert res.status_code == 401
 
+    def test_get_users_success(self, client, register):
+        """ GET /users/id
+        Should: return 200 with user data """
+
+        res = client.get('/users')
+        user_info = res.get_json() 
+        assert res.status_code == 200
+        assert len(user_info) == 1
+
