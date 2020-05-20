@@ -86,11 +86,30 @@ class TestUsersController:
         })
         assert res.status_code == 200
 
-    def test_authorize_failure(self, client):
+    def test_authorize_failure_invalid(self, client):
         """ POST /users/authorize invalid token
         Should: return 401 """
 
         res = client.post('/users/authorize', headers={
             'access-token': 'invalidtoken'
         })
+        assert b'Invalid Token' in res.data
+        assert res.status_code == 401
+
+    def test_authorize_failure_logged_out(self, client, logout):
+        """ POST /users/authorize token logged out
+        Should: return 401 """
+
+        res = client.post('/users/authorize', headers={
+            'access-token': logout
+        })
+        assert b'Invalid Token' in res.data
+        assert res.status_code == 401
+
+    def test_authorize_failure_not_found(self, client):
+        """ POST /users/authorize token not found
+        Should: return 401 """
+
+        res = client.post('/users/authorize')
+        assert b'Token not found' in res.data
         assert res.status_code == 401

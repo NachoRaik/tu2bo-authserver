@@ -30,4 +30,12 @@ def login(client, register, scope='function'):
     })
     return res.get_json()['token']
 
+@pytest.fixture
+def logout(client, login, scope='function'):
+    """Login user."""
+    res = client.post('/users/logout', headers={
+        'access-token': login
+    })
+    return login ##to know token logged out
+
 
