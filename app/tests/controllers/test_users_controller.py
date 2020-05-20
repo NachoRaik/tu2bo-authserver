@@ -17,6 +17,7 @@ class TestUsersController:
         db = _get_db()
         db.drop_collection('user')
         disconnect(alias='test')
+        print("aca!")
 
     def test_register_success(self, client):
         """ POST /users/register
@@ -129,3 +130,23 @@ class TestUsersController:
 
         res = client.post('/users/logout')
         assert res.status_code == 401
+
+    def test_get_user_by_id_success(self, client, register):
+        """ GET /users/id
+        Should: return 200 with user data """
+
+        res = client.get('/users/{}'.format(register))
+        user_info = res.get_json() 
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+
+    def test_get_user_by_id_failure(self, client):
+        """ GET /users/id
+        Should: return 401 with correct message """
+
+        res = client.get('/users/1')
+        user_info = res.get_json() 
+        assert b'Could not find user' in res.data
+        assert res.status_code == 401
+

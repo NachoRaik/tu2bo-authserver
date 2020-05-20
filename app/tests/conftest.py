@@ -20,6 +20,7 @@ def register(client, scope='function'):
         'email': 'olifer97@gmail.com',
         'password': '123'
     })
+    return res.get_json()['id']
 
 @pytest.fixture
 def login(client, register, scope='function'):

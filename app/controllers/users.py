@@ -59,9 +59,12 @@ def get_users():
 
 @bp_users.route('/<userId>', methods=['GET'])
 def get_user_profile(userId):
-    user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
-    user_profile.status_code = 200
-    return user_profile
+    try:
+        user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
+        user_profile.status_code = 200
+        return user_profile
+    except:
+        return make_response('Could not find user',401)
 
 
 @bp_users.route('/authorize', methods=['POST'])
