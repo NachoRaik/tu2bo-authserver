@@ -1,4 +1,5 @@
 import pytest
+from mongoengine import connect, disconnect
 
 def test_hello_message(client):
     """ GET /
@@ -6,6 +7,7 @@ def test_hello_message(client):
 
     res = client.get('/')
     assert b'This is the Auth Server!' in res.data
+    #disconnect()
 
 def test_ping(client):
     """ GET /ping
@@ -13,3 +15,15 @@ def test_ping(client):
 
     res = client.get('/ping')
     assert b'Authserver is up!' in res.data
+    #disconnect()
+
+def test_register(client):
+    """ POST /users/register
+    Should: return 200 and correct message """
+
+    res = client.post('/users/register', json={
+        'username': 'oli',
+        'email': 'olifer97@gmail.com',
+        'password': '123'
+    })
+    assert res.status_code == 200
