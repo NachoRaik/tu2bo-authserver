@@ -16,7 +16,6 @@ class TestUsersController:
         call.
         """
         db = _get_db()
-        help(db)
         db.drop_collection('user')
         disconnect(alias='test_user')
 
