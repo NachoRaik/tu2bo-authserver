@@ -15,7 +15,7 @@ class TestUsersController:
         """
         disconnect(alias='test')
 
-    def test_register(self, client):
+    def test_register_success(self, client):
         """ POST /users/register
         Should: return 200 and correct message """
 
@@ -26,3 +26,15 @@ class TestUsersController:
         })
         assert b'{"id":1}' in res.data
         assert res.status_code == 200
+
+    def test_register_failure(self, client):
+        """ POST /users/register with invalid email
+        Should: return 400 and correct message """
+
+        res = client.post('/users/register', json={
+            'username': 'oli_wrong',
+            'email': 'invalid_email',
+            'password': '123'
+        })
+        assert b'Invalid email address' in res.data
+        assert res.status_code == 400
