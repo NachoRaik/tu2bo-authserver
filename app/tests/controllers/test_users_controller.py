@@ -53,6 +53,7 @@ class TestUsersController:
         json = res.get_json()
         assert 'token' in json
         assert json['user']['username'] == 'oli'
+        assert json['user']['email'] == 'olifer97@gmail.com'
         assert res.status_code == 200
 
     def test_login_failure_password(self, client, context_register):
@@ -79,6 +80,7 @@ class TestUsersController:
         user_info = res.get_json()
         assert res.status_code == 200
         assert user_info['user']['username'] == 'oli'
+        assert user_info['user']['email'] == 'olifer97@gmail.com'
 
     def test_authorize_failure_invalid(self, client):
         """ POST /users/authorize invalid token
