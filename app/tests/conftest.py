@@ -5,6 +5,7 @@ import pytest
 from config import TestingConfig
 from mongoengine import connect, disconnect
 from app import create_app
+from tests.utils import register, login, logout
 
 @pytest.fixture
 def client():
@@ -15,28 +16,19 @@ def client():
 @pytest.fixture
 def context_register(client, scope='function'):
     """Register user."""
-    res = client.post('/users/register', json={
-        'username': 'oli',
-        'email': 'olifer97@gmail.com',
-        'password': '123'
-    })
+    res = register(client, 'oli', 'olifer97@gmail.com', '123')
     return res.get_json()['id']
 
 @pytest.fixture
 def context_login(client, context_register, scope='function'):
     """Login user."""
-    res = client.post('/users/login', json={
-        'email': 'olifer97@gmail.com',
-        'password': '123'
-    })
+    res = login(client, 'olifer97@gmail.com','123')
     return res.get_json()['token']
 
 @pytest.fixture
 def context_logout(client, context_login, scope='function'):
     """Login user."""
-    res = client.post('/users/logout', headers={
-        'access-token': context_login
-    })
+    res = logout(client, context_login)
     return context_login ##to know token logged out
 
 
