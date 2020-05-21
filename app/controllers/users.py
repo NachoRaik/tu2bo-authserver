@@ -46,7 +46,7 @@ def user_login():
         if not check_password_hash(user.password,body['password']):
             return make_response('Password incorrect',401)
         token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
-        return jsonify({'token' : token.decode('UTF-8'),'status':'OK'})
+        return jsonify({'token' : token.decode('UTF-8'),'status':'OK', "user": user.serialize()})
     except User.DoesNotExist:
         return make_response('Could not find user',401)
 
@@ -77,7 +77,8 @@ def user_authorize():
             raise "Invalid Token" # token logged out
 
         data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
-        return make_response("Authorized",200, {'status':'OK','user': data['email']})
+        user = User.objects.get(email=data['email'])
+        return jsonify({'status':'OK', "user": user.serialize()})
     except:
         return make_response("Invalid Token",401,{'message':'Unauthorized'})
 
