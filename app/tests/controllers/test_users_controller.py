@@ -44,7 +44,7 @@ class TestUsersController:
         assert b'Invalid email address' in res.data
         assert res.status_code == 400
     
-    def test_login_success(self, client, register):
+    def test_login_success(self, client, context_register):
         """ POST /users/login
         Should: return 200 and with token """
 
@@ -56,7 +56,7 @@ class TestUsersController:
         assert 'token' in json
         assert res.status_code == 200
 
-    def test_login_failure_password(self, client, register):
+    def test_login_failure_password(self, client, context_register):
         """ POST /users/login wrong password
         Should: return 401 and correct message """
 
@@ -78,12 +78,12 @@ class TestUsersController:
         assert b'Could not find user' in res.data
         assert res.status_code == 401
 
-    def test_authorize_success(self, client, login):
+    def test_authorize_success(self, client, context_login):
         """ POST /users/authorize
         Should: return 200 """
 
         res = client.post('/users/authorize', headers={
-            'access-token': login
+            'access-token': context_login
         })
         assert res.status_code == 200
 
@@ -97,12 +97,12 @@ class TestUsersController:
         assert b'Invalid Token' in res.data
         assert res.status_code == 401
 
-    def test_authorize_failure_logged_out(self, client, logout):
+    def test_authorize_failure_logged_out(self, client, context_logout):
         """ POST /users/authorize token logged out
         Should: return 401 """
 
         res = client.post('/users/authorize', headers={
-            'access-token': logout
+            'access-token': context_logout
         })
         assert b'Invalid Token' in res.data
         assert res.status_code == 401
@@ -115,12 +115,12 @@ class TestUsersController:
         assert b'Token not found' in res.data
         assert res.status_code == 401
 
-    def test_logout_success(self, client, login):
+    def test_logout_success(self, client, context_login):
         """ POST /users/logout
         Should: return 205 """
 
         res = client.post('/users/logout', headers={
-            'access-token': login
+            'access-token': context_login
         })
         assert res.status_code == 205
 
@@ -131,11 +131,11 @@ class TestUsersController:
         res = client.post('/users/logout')
         assert res.status_code == 401
 
-    def test_get_user_by_id_success(self, client, register):
+    def test_get_user_by_id_success(self, client, context_register):
         """ GET /users/id
         Should: return 200 with user data """
 
-        res = client.get('/users/{}'.format(register))
+        res = client.get('/users/{}'.format(context_register))
         user_info = res.get_json() 
         assert res.status_code == 200
         assert user_info['username'] == 'oli'
@@ -150,7 +150,7 @@ class TestUsersController:
         assert b'Could not find user' in res.data
         assert res.status_code == 401
 
-    def test_get_users_success(self, client, register):
+    def test_get_users_success(self, client, context_register):
         """ GET /users/id
         Should: return 200 with user data """
 

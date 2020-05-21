@@ -13,7 +13,7 @@ def client():
     return app.test_client()
 
 @pytest.fixture
-def register(client, scope='function'):
+def context_register(client, scope='function'):
     """Register user."""
     res = client.post('/users/register', json={
         'username': 'oli',
@@ -23,7 +23,7 @@ def register(client, scope='function'):
     return res.get_json()['id']
 
 @pytest.fixture
-def login(client, register, scope='function'):
+def context_login(client, context_register, scope='function'):
     """Login user."""
     res = client.post('/users/login', json={
         'email': 'olifer97@gmail.com',
@@ -32,11 +32,11 @@ def login(client, register, scope='function'):
     return res.get_json()['token']
 
 @pytest.fixture
-def logout(client, login, scope='function'):
+def context_logout(client, context_login, scope='function'):
     """Login user."""
     res = client.post('/users/logout', headers={
-        'access-token': login
+        'access-token': context_login
     })
-    return login ##to know token logged out
+    return context_login ##to know token logged out
 
 
