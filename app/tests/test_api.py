@@ -1,4 +1,5 @@
 import pytest
+from mongoengine import connect, disconnect
 
 def test_hello_message(client):
     """ GET /

@@ -7,3 +7,5 @@ Werkzeug==1.0.1
 flask-mongoengine
 pytest
 pyjwt
+mongoengine
+mongomock

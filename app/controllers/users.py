@@ -12,6 +12,7 @@ from database.models.invalid_token import InvalidToken
 
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
+ENCODING_ALGORITHM = 'HS256'
 LOGIN_FIELDS = ['email','password']
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
@@ -44,7 +45,7 @@ def user_login():
         user = User.objects.get(email=body['email'])
         if not check_password_hash(user.password,body['password']):
             return make_response('Password incorrect',401)
-        token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'])
+        token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
         return jsonify({'token' : token.decode('UTF-8'),'status':'OK'})
     except User.DoesNotExist:
         return make_response('Could not find user',401)
@@ -57,10 +58,13 @@ def get_users():
 
 
 @bp_users.route('/<userId>', methods=['GET'])
-def get_user_profile(userId):
-    user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
-    user_profile.status_code = 200
-    return user_profile
+def get_user_profile(userId): # TODO: Paginate users
+    try:
+        user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
+        user_profile.status_code = 200
+        return user_profile
+    except:
+        return make_response('Could not find user',401)
 
 
 @bp_users.route('/authorize', methods=['POST'])
@@ -72,7 +76,7 @@ def user_authorize():
         if len(InvalidToken.objects(token=token)) > 0: 
             raise "Invalid Token" # token logged out
 
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
         return make_response("Authorized",200, {'status':'OK','user': data['email']})
     except:
         return make_response("Invalid Token",401,{'message':'Unauthorized'})
@@ -84,7 +88,7 @@ def user_logout():
         return make_response("Token not found",401,{'message':'Unauthorized'})
     token = request.headers[HEADER_ACCESS_TOKEN]
     try:
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
         expired_token = InvalidToken(token=token, expire_at=datetime.datetime.fromtimestamp(data['exp'])).save()
         return make_response("Logged out",205)
     except:
