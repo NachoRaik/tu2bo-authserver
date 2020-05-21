@@ -29,13 +29,21 @@ class TestUsersController:
         assert json['id'] == 1
         assert res.status_code == 200
 
-    def test_register_failure(self, client):
+    def test_register_failure_invalid_email(self, client):
         """ POST /users/register with invalid email
         Should: return 400 and correct message """
 
         res = register(client, 'oli_wrong', 'invalid_email','123')
         assert b'Invalid email address' in res.data
         assert res.status_code == 400
+
+    def test_register_failure_username_taken(self, client, context_register):
+        """ POST /users/register with username taken
+        Should: return 400 and correct message """
+
+        res = register(client, 'oli', 'different@email.com','123') # same username as context
+        assert b'User already registered' in res.data
+        assert res.status_code == 409
     
     def test_login_success(self, client, context_register):
         """ POST /users/login
