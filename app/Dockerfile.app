@@ -8,5 +8,4 @@ RUN python3 -m pip install --user --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "main.py"]
-
+CMD python main.py $PORT
