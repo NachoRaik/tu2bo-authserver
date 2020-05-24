@@ -30,11 +30,11 @@ test: setup
 #   heroku container:login
 .PHONY: heroku-push
 heroku-push:
-	heroku container:push app --recursive --app=$(HEROKU_APP_NAME) --verbose
+	heroku container:push web --recursive --app=$(HEROKU_APP_NAME) --verbose
 
 .PHONY: heroku-release
 heroku-release:
-	heroku container:release app --app $(HEROKU_APP_NAME) --verbose
+	heroku container:release web --app $(HEROKU_APP_NAME) --verbose
 
 
 # -- Utils
