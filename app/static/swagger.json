@@ -1,229 +1,117 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "description": "Auth server for TutuboApp",
-      "version": "1.0.0",
-      "title": "Auth Server"
-    },
-    "tags": [
-      {
-        "name": "users",
-        "description": "Operations about user"
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Auth server for TutuboApp",
+    "version": "1.0.0",
+    "title": "Auth Server"
+  },
+  "tags": [
+    {
+      "name": "users",
+      "description": "Operations about user"
+    }
+  ],
+  "paths": {
+    "/users/register": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Register user",
+        "operationId": "createUser",
+        "requestBody": {
+          "description": "Created user object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "olifer97@address.com"
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "olifer97"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email address"
+          },
+          "409": {
+            "description": "User already registered"
+          }
+        }
       }
-    ],
-    "paths": {
-      "/users/register": {
-        "post": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Register user",
-          "operationId": "createUser",
-          "requestBody": {
-            "description": "Created user object",
-            "required": true,
+    },
+    "/users/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Logs user into the system",
+        "description": "",
+        "operationId": "loginUser",
+        "requestBody": {
+          "description": "Login credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "olifer97@address.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "email": {
+                    "token": {
                       "type": "string",
-                      "example": "olifer97@address.com"
+                      "example": "aToken"
                     },
-                    "username": {
-                      "type": "string",
-                      "example": "olifer97"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "123456"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "User created"
-            },
-            "400": {
-              "description": "Invalid email address"
-            },
-            "409": {
-              "description": "User already registered"
-            }
-          }
-        }
-      },
-      "/users/login": {
-        "post": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Logs user into the system",
-          "description": "",
-          "operationId": "loginUser",
-          "requestBody": {
-            "description": "Login credentials",
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": {
-                      "type": "string",
-                      "example": "olifer97@address.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "123456"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "User logged in",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "token": {
-                        "type": "string",
-                        "example": "aToken"
-                      },
-                      "user": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "username": {
-                            "type": "string",
-                            "example": "olifer97"
-                          },
-                          "email": {
-                            "type": "string",
-                            "example": "olifer97@address.com"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Password incorrect or Invalid email address"
-            }
-          }
-        }
-      },
-      "/users/logout": {
-        "post": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Logs out current logged in user session",
-          "description": "",
-          "operationId": "logoutUser",
-          "parameters": [
-            {
-              "in": "header",
-              "name": "access-token",
-              "schema": {
-                "type": "string"
-              },
-              "required": true
-            }
-          ],
-          "responses": {
-            "205": {
-              "description": "Logged out"
-            },
-            "401": {
-              "description": "Token not found"
-            }
-          }
-        }
-      },
-      "/users/authorize": {
-        "post": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Check if token is authorize",
-          "description": "",
-          "operationId": "authorize",
-          "parameters": [
-            {
-              "in": "header",
-              "name": "access-token",
-              "schema": {
-                "type": "string"
-              },
-              "required": true
-            }
-          ],
-          "responses": {
-            "205": {
-              "description": "Authorized",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "user": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "example": 1
-                          },
-                          "username": {
-                            "type": "string",
-                            "example": "olifer97"
-                          },
-                          "email": {
-                            "type": "string",
-                            "example": "olifer97@address.com"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Token not found or Invalid token"
-            }
-          }
-        }
-      },
-      "/users": {
-        "get": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Get all users",
-          "description": "",
-          "operationId": "getUsers",
-          "responses": {
-            "200": {
-              "description": "Users Profile",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
+                    "user": {
                       "type": "object",
                       "properties": {
                         "id": {
@@ -243,38 +131,112 @@
                   }
                 }
               }
-            },
-            "401": {
-              "description": "Could not find user"
             }
+          },
+          "401": {
+            "description": "Password incorrect or Invalid email address"
           }
         }
-      },
-      "/users/{id}": {
-        "get": {
-          "tags": [
-            "users"
-          ],
-          "summary": "Get user by id",
-          "description": "",
-          "operationId": "getUserById",
-          "parameters": [
-            {
-              "in": "path",
-              "name": "id",
-              "required": true,
-              "schema": {
-                "type": "integer",
-                "minimum": 1
+      }
+    },
+    "/users/logout": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Logs out current logged in user session",
+        "description": "",
+        "operationId": "logoutUser",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "205": {
+            "description": "Logged out"
+          },
+          "401": {
+            "description": "Token not found"
+          }
+        }
+      }
+    },
+    "/users/authorize": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Check if token is authorize",
+        "description": "",
+        "operationId": "authorize",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "access-token",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "205": {
+            "description": "Authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "olifer97"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "olifer97@address.com"
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "User Profile",
-              "content": {
-                "application/json": {
-                  "schema": {
+          },
+          "401": {
+            "description": "Token not found or Invalid token"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get all users",
+        "description": "",
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "description": "Users Profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
                     "type": "object",
                     "properties": {
                       "id": {
@@ -293,12 +255,63 @@
                   }
                 }
               }
-            },
-            "401": {
-              "description": "Could not find user"
             }
+          },
+          "401": {
+            "description": "Could not find user"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user by id",
+        "description": "",
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "olifer97"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "olifer97@address.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Could not find user"
           }
         }
       }
     }
   }
+}
