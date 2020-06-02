@@ -15,18 +15,7 @@ def setup_blueprints(app):
     app.register_blueprint(monitoring.bp_monitor)
     app.register_blueprint(auth_users.bp_auth_users)
 
-
-
-# -- App creation
-
-def create_app(config=DevelopmentConfig()):
-    app = Flask(__name__)
-    app.config.from_object(config)
-    db = initialize_db(app)
-
-    setup_blueprints(app)
-
-    ### swagger specific ###
+def setup_swaggerui(app):
     SWAGGER_URL = '/swagger'
     API_URL = '/static/swagger.json'
     SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
@@ -37,7 +26,18 @@ def create_app(config=DevelopmentConfig()):
         }
     )
     app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
-    ### end swagger specific ###
+
+
+
+# -- App creation
+
+def create_app(config=DevelopmentConfig()):
+    app = Flask(__name__)
+    app.config.from_object(config)
+    db = initialize_db(app)
+
+    setup_blueprints(app)
+    setup_swaggerui(app)
 
     @app.route('/static/<path:path>')
     def send_static(path):
@@ -47,10 +47,6 @@ def create_app(config=DevelopmentConfig()):
     @app.route('/')
     def hello():
         return "This is the Auth Server!"
-
-    @app.route('/login', methods=['POST'])
-    def register():
-        return "TODO: login"
 
     return app
 
