@@ -49,6 +49,3 @@ def create_app(config=DevelopmentConfig()):
         return "This is the Auth Server!"
 
     return app
-
-
-
