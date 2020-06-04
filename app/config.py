@@ -10,7 +10,10 @@ class Config(object):
     SECRET_KEY = '7bzRBYbgqzFWe4Y7oz6zFUIt6jE3ZOlq'
 
 class ProductionConfig(Config):
-    DATABASE_URI = 'mysql://user@localhost/foo'
+    MONGODB_SETTINGS = {
+	    'host': os.getenv('MONGODB_URI'),
+        'retryWrites': False
+    }
 
 class DevelopmentConfig(Config):
     TESTING = True
