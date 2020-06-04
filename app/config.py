@@ -7,7 +7,7 @@ class Config(object):
 	    'db': 'authserver-db',
 	    'host': 'mongodb://authserver-db:27017/authserver-db'
     }
-    SECRET_KEY = '7bzRBYbgqzFWe4Y7oz6zFUIt6jE3ZOlq'
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 class ProductionConfig(Config):
     MONGODB_SETTINGS = {
