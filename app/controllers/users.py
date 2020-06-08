@@ -21,7 +21,8 @@ bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 @bp_users.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
     body = request.get_json()
-    if (not body or not     Counter(REGISTER_FIELDS)==Counter(body.keys())):
+    if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys())):
+        app.logger.debug(" Registration || FAILURE || Bad Request --> %s %s", body, request.content_length, request.content_type)
         return make_response('Cant verify register',400)
     hashed_password = generate_password_hash(body['password'], method='sha256')
     try:
