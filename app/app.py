@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 from database.db import initialize_db
 from config import DevelopmentConfig
 from flask_swagger_ui import get_swaggerui_blueprint
+import logging
 
 # -- Server setup and config
 
@@ -34,6 +35,7 @@ def setup_swaggerui(app):
 def create_app(config=DevelopmentConfig()):
     app = Flask(__name__)
     app.config.from_object(config)
+    app.logger.setLevel(logging.DEBUG)
     db = initialize_db(app)
 
     setup_blueprints(app)

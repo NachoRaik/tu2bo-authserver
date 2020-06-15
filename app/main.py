@@ -6,7 +6,8 @@ from config import ProductionConfig, DevelopmentConfig
 PORT = "5000"
 
 def main(args=[]):
-    app_port = PORT if len(args) <= 1 else args[1]
+    app_port = PORT if len(args)<=1 else args[1]
+
     environment = os.getenv('TUTUBO_ENV')
     
     config = ProductionConfig() if environment == "PROD" else DevelopmentConfig()
