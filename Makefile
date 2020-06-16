@@ -20,7 +20,7 @@ install: setup
 test: setup
 	. $(ENVDIR)/bin/activate && \
 		pip3 install -r app/requirements.txt && \
-		coverage run -m pytest -s -v app/tests/ --disable-pytest-warnings && \
+		coverage run -m pytest -v app/tests/ --disable-pytest-warnings && \
 		coverage report -m
 
 
