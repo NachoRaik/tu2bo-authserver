@@ -62,10 +62,24 @@
             }
           },
           "400": {
-            "description": "Invalid email address"
+            "description": "Insufficient or invalid fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
           },
           "409": {
-            "description": "User already registered"
+            "description": "User already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -133,8 +147,25 @@
               }
             }
           },
+          "400": {
+            "description": "Insufficient fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
           "401": {
-            "description": "Password incorrect or Invalid email address"
+            "description": "Bad credentials or inexistent user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -162,7 +193,14 @@
             "description": "Logged out"
           },
           "401": {
-            "description": "Token not found"
+            "description": "Token not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -186,7 +224,7 @@
           }
         ],
         "responses": {
-          "205": {
+          "200": {
             "description": "Authorized",
             "content": {
               "application/json": {
@@ -216,7 +254,14 @@
             }
           },
           "401": {
-            "description": "Token not found or Invalid token"
+            "description": "Token not found or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -237,28 +282,11 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "example": 1
-                      },
-                      "username": {
-                        "type": "string",
-                        "example": "olifer97"
-                      },
-                      "email": {
-                        "type": "string",
-                        "example": "olifer97@address.com"
-                      }
-                    }
+                    "$ref": "#/components/schemas/User"
                   }
                 }
               }
             }
-          },
-          "401": {
-            "description": "Could not find user"
           }
         }
       }
@@ -288,27 +316,77 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "example": 1
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "olifer97"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "olifer97@address.com"
-                    }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
-          "401": {
-            "description": "Could not find user"
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "olifer97"
+          },
+          "email": {
+            "type": "string",
+            "example": "olifer97@address.com"
+          }
+        }
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Invalid data"
+          }
+        }
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Invalid request"
+          }
+        }
+      },
+      "NotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Not Found"
+          }
+        }
+      },
+      "ConflictResponse": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Already taken"
           }
         }
       }
