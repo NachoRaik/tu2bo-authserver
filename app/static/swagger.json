@@ -332,6 +332,64 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Edit user info",
+        "description": "",
+        "operationId": "editUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New field values",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "picture": {
+                    "type": "string",
+                    "example": "images.com/myProfilePic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User Profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -351,6 +409,12 @@
           "email": {
             "type": "string",
             "example": "olifer97@address.com"
+          },
+          "profile": {
+            "type": "object",
+            "example": {
+              "picture": "url.com/image"
+            }
           }
         }
       },

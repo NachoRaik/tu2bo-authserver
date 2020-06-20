@@ -2,7 +2,7 @@ import pytest
 import json
 from mongoengine import connect, disconnect
 from mongoengine.connection import _get_db
-from tests.utils import register, login, authorize, logout, get_user
+from tests.utils import *
 
 class TestUsersController:
     def setup_method(self, method):
@@ -138,6 +138,8 @@ class TestUsersController:
         assert res.status_code == 200
         assert user_info['username'] == 'oli'
         assert user_info['email'] == 'olifer97@gmail.com'
+        assert 'profile' in user_info
+        assert 'picture' not in user_info['profile']
 
     def test_get_user_by_id_failure(self, client): # no context_register
         """ GET /users/id
@@ -147,6 +149,36 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 404
         assert 'Could not find user' == body['reason']
+
+    def test_edit_user_profile_pic(self, client, context_register):
+        """ GET /users/id
+        Should: return 200 with updated user data """
+
+        res =  edit_user(client, context_register, {'picture': 'someUrl.com/myImage'})
+        user_info = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert user_info['profile']['picture'] == 'someUrl.com/myImage'
+
+        # checking if it is persisted
+        res = get_user(client, context_register)
+        user_info = json.loads(res.get_data()) 
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert user_info['profile']['picture'] == 'someUrl.com/myImage'
+
+    def test_edit_user_inexistent_field(self, client, context_register):
+        """ GET /users/id
+        Should: return 200 with same user data """
+
+        res =  edit_user(client, context_register, {'myRandomField': 'blabla'})
+        user_info = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert 'myRandomField' not in user_info['profile']
 
     def test_get_users_success(self, client, context_register):
         """ GET /users/id
