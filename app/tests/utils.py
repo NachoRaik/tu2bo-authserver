@@ -23,3 +23,6 @@ def authorize(client, token=None):
 
 def get_user(client, id):
     return client.get('users/{}'.format(id))
+
+def edit_user(client, id, body):
+    return client.put('users/{}'.format(id), json=body)

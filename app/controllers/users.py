@@ -62,14 +62,20 @@ def get_users():
     return users
 
 
-@bp_users.route('/<userId>', methods=['GET'])
-def get_user_profile(userId): # TODO: Paginate users
-    try:
-        user_profile = jsonify(User.objects(id=userId)[0].serialize()) #unique id
-        user_profile.status_code = 200
-        return user_profile
-    except:
+@bp_users.route('/<userId>', methods=['GET', 'PUT'])
+def user_profile(userId): # TODO: Paginate users    
+    user = User.objects.with_id(userId) #unique id
+    if not user:
         return error_response(404, 'Could not find user')
+    
+    if request.method == 'PUT':
+        body = request.get_json()
+        user.profile_pic = user.profile_pic if not body or not 'picture' in body else body['picture']
+        user.save()
+
+    user_profile = jsonify(user.serialize())
+    user_profile.status_code = 200
+    return user_profile
 
 
 @bp_users.route('/authorize', methods=['POST'])
