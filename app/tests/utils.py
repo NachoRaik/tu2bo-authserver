@@ -1,12 +1,16 @@
 def get_stats(client):
     return client.get('/stats')
 
-def register(client, username, email, password):
-    return client.post('/users/register', json={
-        'username': username,
-        'email': email,
-        'password': password
-    })
+def register(client, username=None, email=None, password=None):
+    request = {}
+    if username != None:
+        request['username'] = username
+    if email != None:
+        request['email'] = email
+    if password != None:
+        request['password'] = password
+        
+    return client.post('/users/register', json=request)
 
 def login(client, email, password):
     return client.post('/users/login', json={

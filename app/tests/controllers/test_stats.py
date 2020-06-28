@@ -9,13 +9,16 @@ class TestMonitoringController:
         """ setup any state tied to the execution of the given method in a
         class.  setup_method is invoked for every test method of a class.
         """
+
         connect('authserver-db-test', host='mongomock://localhost', alias='test')
 
     def teardown_method(self, method):
         """ teardown any state that was previously setup with a setup_method
         call.
         """
+
         db = _get_db()
+        db.drop_collection('user_stat')
         db.drop_collection('user')
         disconnect(alias='test')
 
@@ -24,21 +27,23 @@ class TestMonitoringController:
         Should: return 200 and stats"""
 
         res = get_stats(client)
-        body = json.loads(res.get_data())
         assert res.status_code == 200
-        assert body['num_users'] == 0
+
+        body = json.loads(res.get_data())
+        assert len(body) == 0
 
     def test_stats_with_one_user(self, client):
         """ GET /stats 
         Should: return 200 and stats"""
 
-        res = register(client, 'oli', 'olifer97@gmail.com', '123')
+        res = register(client, 'user', 'test@mail.com', '123')
         assert res.status_code == 200
 
         res = get_stats(client)
         body = json.loads(res.get_data())
         assert res.status_code == 200
-        assert body['num_users'] == 1
+        assert len(body) == 1
+        assert body[0]['num_users'] == 1
 
     def test_stats_with_many_users(self, client):
         """ GET /stats 
@@ -46,11 +51,39 @@ class TestMonitoringController:
 
         cant_users = 10
         for i in range(cant_users):
-            res = register(client, 'oli{}'.format(i), 'olifer{}@gmail.com'.format(i), '123')
+            res = register(client, 'user{}'.format(i), 'test{}@mail.com'.format(i), '123')
             assert res.status_code == 200
-
         res = get_stats(client)
         body = json.loads(res.get_data())
         assert res.status_code == 200
-        assert body['num_users'] == cant_users
+        assert len(body) == cant_users
+        for num_users in range(len(body)):
+            assert body[num_users]['num_users'] == (num_users + 1)        
+
+    def test_failed_registration_with_same_user(self, client):
+        """ GET /stats 
+        Should: return 200 and stats"""
+
+        res = register(client, 'user', 'test@mail.com', '123')
+        assert res.status_code == 200
+
+        res = register(client, 'user', 'test@mail.com', '123')
+        assert res.status_code == 409
         
+        res = get_stats(client)
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert len(body) == 1
+        assert body[0]['num_users'] == 1
+
+    def test_failed_registration_with_invalid_fields(self, client):
+        """ GET /stats 
+        Should: return 200 and stats"""
+
+        res = register(client, username='user', email='test@mail.com')
+        assert res.status_code == 400
+        
+        res = get_stats(client)
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert len(body) == 0
