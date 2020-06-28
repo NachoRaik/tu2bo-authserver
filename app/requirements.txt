@@ -13,3 +13,4 @@ pytest
 coverage
 flask_swagger_ui
 flask-cors
+prometheus_flask_exporter
