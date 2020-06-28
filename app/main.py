@@ -2,7 +2,6 @@ from app import create_app
 import os
 import sys
 from config import ProductionConfig, DevelopmentConfig
-from prometheus_flask_exporter import PrometheusMetrics
 
 PORT = "5000"
 
@@ -13,7 +12,6 @@ def main(args=[]):
     
     config = ProductionConfig() if environment == "PROD" else DevelopmentConfig()
     app = create_app(config)
-    metrics = PrometheusMetrics(app)
     
     print("Raising AuthServer in port", app_port)
     app.run(host="0.0.0.0", port=app_port)
