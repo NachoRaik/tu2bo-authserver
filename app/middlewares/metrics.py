@@ -11,8 +11,8 @@ def should_be_saved():
     if UserStat.objects.count() != 0:
         last_record_timestamp = UserStat.objects.order_by('-id').first().timestamp
         last_record_to_datetime = datetime.strptime(last_record_timestamp, TIME_FORMAT)
-        is_time = ((datetime.now() - last_record_to_datetime).total_seconds()/3600 >= 1)
-    return app.config['TESTING'] or is_time
+        is_time = (datetime.now() - last_record_to_datetime) > app.config['DELAY']
+    return is_time
 
 def add_user_count(f):
     @wraps(f)

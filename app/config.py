@@ -1,7 +1,9 @@
 import os
+from datetime import timedelta
 
 class Config(object):
     def __init__(self):
+        self.DELAY = timedelta(milliseconds=1)
         self.DEBUG = False
         self.TESTING = False
         self.MONGODB_SETTINGS = {
@@ -12,6 +14,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     def __init__(self):
+        self.DELAY = timedelta(days=1)
         super().__init__()
         self.MONGODB_SETTINGS = {
 	        'host': os.getenv('MONGODB_URI'),
@@ -20,11 +23,13 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     def __init__(self):
+        self.DELAY = timedelta(milliseconds=1)
         super().__init__()
         self.TESTING = True
 
 class TestingConfig(Config):
     def __init__(self):
+        self.DELAY = timedelta(milliseconds=1)
         super().__init__()
         self.TESTING = True
         self.MONGODB_SETTINGS = {
