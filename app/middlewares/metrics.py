@@ -1,10 +1,8 @@
-from flask import Blueprint, Response, request, jsonify, make_response
 from flask import current_app as app
 from functools import wraps
 from database.models.user import User
 from database.models.user_stat import UserStat
 from datetime import datetime
-from flask import current_app as app
 
 TIME_FORMAT = "%m/%d/%y %H:%M:%S"
 
