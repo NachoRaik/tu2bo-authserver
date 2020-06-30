@@ -15,8 +15,7 @@ def ping():
 
 @bp_monitor.route('/stats')
 def stats():
-    body = request.get_json()
-    date = body['timestamp']
+    date = request.args.get('timestamp')
     date_to_timestamp = datetime.strptime(date, TIME_FORMAT)
     response = []
     user_stats = UserStat.objects

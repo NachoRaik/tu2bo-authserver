@@ -3,7 +3,7 @@ from datetime import timedelta
 
 class Config(object):
     def __init__(self):
-        self.DELAY = timedelta(milliseconds=1)
+        #self.DELAY = timedelta(milliseconds=1)
         self.DEBUG = False
         self.TESTING = False
         self.MONGODB_SETTINGS = {
@@ -23,7 +23,7 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     def __init__(self):
-        self.DELAY = timedelta(milliseconds=1)
+        self.DELAY = timedelta(minutes=1)
         super().__init__()
         self.TESTING = True
 

@@ -1,5 +1,5 @@
 def get_stats(client):
-    return client.get('/stats', json={'timestamp': '06/29/20 18:03:31'})
+    return client.get('/stats', query_string={'timestamp': '06/29/20 18:03:31'})
 
 def register(client, username=None, email=None, password=None):
     request = {}
