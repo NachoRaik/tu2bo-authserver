@@ -56,7 +56,6 @@ class TestMonitoringController:
         res = get_stats(client)
         body = json.loads(res.get_data())
         assert res.status_code == 200
-        print(body)
         assert len(body) == cant_users
         for num_users in range(len(body)):
             assert body[num_users]['num_users'] == (num_users + 1)        
