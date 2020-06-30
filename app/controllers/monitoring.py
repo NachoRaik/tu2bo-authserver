@@ -21,7 +21,7 @@ def stats():
     user_stats = UserStat.objects
     for stat in user_stats:
         act_timestamp = datetime.strptime(stat.timestamp, TIME_FORMAT)
-        if (date_to_timestamp - act_timestamp).total_seconds() < 0: 
+        if date_to_timestamp < act_timestamp: 
             response.append({"num_users": stat.num_users, "timestamp": stat.timestamp})
     request_response = jsonify(response)
     request_response.status_code = 200
