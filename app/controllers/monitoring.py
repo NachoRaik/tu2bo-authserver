@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask import current_app as app
 from database.models.user_stat import UserStat
-from datetime import datetime
+from datetime import datetime, timedelta
 
 bp_monitor = Blueprint("bp_monitor", __name__)
 
@@ -15,7 +15,8 @@ def ping():
 
 @bp_monitor.route('/stats')
 def stats():
-    date = request.args.get('timestamp')
+    default_date = (datetime.now() - timedelta(days=1)).strftime(TIME_FORMAT)
+    date = request.args.get('timestamp') if 'timestamp' in request.args else default_date
     date_to_timestamp = datetime.strptime(date, TIME_FORMAT)
     response = []
     user_stats = UserStat.objects

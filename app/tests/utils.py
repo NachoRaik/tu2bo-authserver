@@ -1,5 +1,8 @@
-def get_stats(client):
-    return client.get('/stats', query_string={'timestamp': '06/29/20 18:03:31'})
+def get_stats(client, timestamp=None):
+    query_string = {}
+    if timestamp != None:
+        query_string['timestamp'] = timestamp
+    return client.get('/stats', query_string=query_string)
 
 def register(client, username=None, email=None, password=None):
     request = {}
