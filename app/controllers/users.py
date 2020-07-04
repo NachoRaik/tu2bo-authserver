@@ -115,9 +115,9 @@ def user_logout():
 
 @bp_users.route('/forgot_password', methods=['POST'], strict_slashes=False)
 def user_forgot_password():
-    body = request.get_json()
-    if (not body or not Counter(FORGOT_PASSWORD_FIELDS)==Counter(body.keys())):
-        return error_response(400, 'Missing fields')
+    #body = request.get_json()
+    #if (not body or not Counter(FORGOT_PASSWORD_FIELDS)==Counter(body.keys())):
+        #return error_response(400, 'Missing fields')
 
     try:
         mail = Mail(app)
