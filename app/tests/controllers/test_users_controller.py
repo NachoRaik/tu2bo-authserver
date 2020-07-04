@@ -261,5 +261,29 @@ class TestUsersController:
         res_login = login(client, 'olifer97@gmail.com','newpassword')
         assert res_login.status_code == 200
 
+    def test_change_password_wrong_code_fails(self, client):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # newpassword is invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
+        # newpassword is still invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+    def test_change_password_wrong_email_fails(self, client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
     
 
