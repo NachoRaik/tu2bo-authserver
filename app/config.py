@@ -16,7 +16,13 @@ class ProductionConfig(Config):
     }
 
 class DevelopmentConfig(Config):
-    TESTING = True
+    #TESTING = True
+    #DEBUG = True
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 456
+    MAIL_USERNAME = 'olifer97@gmail.com'
+    MAIL_PASSWORD = 'xwkzrkrufbdvsvav'
+    MAIL_USE_SSL = True
 
 class TestingConfig(Config, object):
     TESTING = True

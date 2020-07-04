@@ -2,6 +2,7 @@ import jwt
 import datetime
 from flask import Blueprint, request, jsonify, make_response
 from flask import current_app as app
+from flask_mail import Mail, Message, email_dispatched
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from collections import Counter
@@ -14,10 +15,14 @@ from database.models.invalid_token import InvalidToken
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
 LOGIN_FIELDS = ['email','password']
+FORGOT_PASSWORD_FIELDS = ['email']
 
 ENCODING_ALGORITHM = 'HS256'
 
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
+
+def log_message(message, app):
+    app.logger.debug(message.subject)
 
 # -- Endpoints
 
@@ -107,3 +112,29 @@ def user_logout():
         return make_response("Logged out", 205)
     except:
         return make_response("Logged out", 205)
+
+@bp_users.route('/forgot_password', methods=['POST'], strict_slashes=False)
+def user_forgot_password():
+    body = request.get_json()
+    if (not body or not Counter(FORGOT_PASSWORD_FIELDS)==Counter(body.keys())):
+        return error_response(400, 'Missing fields')
+
+    try:
+        mail = Mail(app)
+        #email_dispatched.connect(log_message)
+        #app.extensions['mail'].debug = 1
+        #user = User.objects.get(email=body['email'])
+        msg = Message('Hello', sender="olifer97@gmail.com", recipients = ['olifer97@gmail.com'])
+        msg.body = "This is the email body"
+        app.logger.debug("hola")
+        #mail.send(msg)
+        with mail.record_messages() as outbox:
+            mail.send(msg)
+            app.logger.debug(len(outbox))
+            app.logger.debug(outbox[0].subject)
+            #assert outbox[0].subject == "testing"
+        
+        app.logger.debug("chau")
+        return jsonify({'response' : 'email sent'})
+    except User.DoesNotExist:
+        return jsonify({'response' : 'not found sent'})
