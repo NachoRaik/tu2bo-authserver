@@ -6,10 +6,12 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from collections import Counter
 from controllers.utils import error_response
+from middlewares.metrics import add_user_count
 
 from mongoengine.errors import NotUniqueError, ValidationError
 from database.models.user import User
 from database.models.invalid_token import InvalidToken
+from middlewares.metrics import add_user_count
 
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
@@ -22,6 +24,7 @@ bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 # -- Endpoints
 
 @bp_users.route('/register', methods=['POST'], strict_slashes=False)
+@add_user_count
 def register_user():
     body = request.get_json()
     if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys())):

@@ -1,27 +1,39 @@
 import os
+from datetime import timedelta
 
 class Config(object):
-    DEBUG = False
-    TESTING = False
-    MONGODB_SETTINGS = {
-	    'db': 'authserver-db',
-	    'host': 'mongodb://authserver-db:27017/authserver-db'
-    }
-    SECRET_KEY = os.getenv('SECRET_KEY', 'default')
+    def __init__(self):
+        #self.DELAY = timedelta(milliseconds=1)
+        self.DEBUG = False
+        self.TESTING = False
+        self.MONGODB_SETTINGS = {
+	        'db': 'authserver-db',
+	        'host': 'mongodb://authserver-db:27017/authserver-db'
+        }
+        self.SECRET_KEY = os.getenv('SECRET_KEY', 'default')
 
 class ProductionConfig(Config):
-    MONGODB_SETTINGS = {
-	    'host': os.getenv('MONGODB_URI'),
-        'retryWrites': False
-    }
+    def __init__(self):
+        self.DELAY = timedelta(days=1)
+        super().__init__()
+        self.MONGODB_SETTINGS = {
+	        'host': os.getenv('MONGODB_URI'),
+            'retryWrites': False
+        }
 
 class DevelopmentConfig(Config):
-    TESTING = True
+    def __init__(self):
+        self.DELAY = timedelta(minutes=1)
+        super().__init__()
+        self.TESTING = True
 
-class TestingConfig(Config, object):
-    TESTING = True
-    MONGODB_SETTINGS = {
-	    'db': 'authserver-db-test',
-	    'host': 'mongomock://localhost',
-        'connect': False,
-    }
+class TestingConfig(Config):
+    def __init__(self):
+        self.DELAY = timedelta(milliseconds=1)
+        super().__init__()
+        self.TESTING = True
+        self.MONGODB_SETTINGS = {
+	        'db': 'authserver-db-test',
+	        'host': 'mongomock://localhost',
+            'connect': False,
+        }
