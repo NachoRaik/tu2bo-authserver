@@ -8,7 +8,7 @@ TIME_FORMAT = "%m/%d/%y %H:%M:%S"
 
 def should_be_saved():
     is_time = True
-    if UserStat.objects.count() != 0:
+    if len(UserStat.objects) != 0:
         last_record_timestamp = UserStat.objects.order_by('-id').first().timestamp
         last_record_to_datetime = datetime.strptime(last_record_timestamp, TIME_FORMAT)
         is_time = (datetime.now() - last_record_to_datetime) > app.config['DELAY']
@@ -19,7 +19,7 @@ def add_user_count(f):
     def decorated(*args, **kwargs):
         response = f(*args, **kwargs)
         if response.status_code == 200 and should_be_saved(): 
-            num_users = User.objects.count()
+            num_users = len(User.objects)
             timestamp = datetime.now().strftime(TIME_FORMAT)
             user_stat = UserStat(num_users=num_users, timestamp=timestamp)
             user_stat.save()
