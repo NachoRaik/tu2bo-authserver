@@ -6,12 +6,21 @@ from config import TestingConfig
 from mongoengine import connect, disconnect
 from app import create_app
 from tests.utils import register, login, logout
+from flask_mail import Mail
 
 @pytest.fixture
 def client():
     """A test client for the app."""
     app = create_app(TestingConfig)
     return app.test_client()
+
+@pytest.fixture
+def mail():
+    """Mailer for the app."""
+    app = create_app(TestingConfig)
+    mail = Mail(app)
+    return mail
+
 
 @pytest.fixture
 def context_register(client, scope='function'):

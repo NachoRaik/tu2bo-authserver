@@ -126,7 +126,7 @@ def user_reset_password():
     try:
         mail = Mail(app)
         user = User.objects.get(email=body['email'])
-        code = get_reset_code()
+        code = get_reset_code(app.config['TESTING'])
         msg = create_mail(user.username, user.email, code)
         mail.send(msg)
 

@@ -190,11 +190,15 @@ class TestUsersController:
         assert res.status_code == 200
         assert len(users) == 1
     
-    def test_reset_password_success(slef, client, context_register):
+    def test_reset_password_success(slef, client, mail, context_register):
         """ POST /users/reset_passord
         Should: return 204 and send email """
 
-        res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
 
-        assert res.status_code == 200
+            assert len(outbox) == 1
+            assert outbox[0].subject == '[Tutubo] Restablecer contraseña'
+            assert '1111' in outbox[0].body
+            assert res.status_code == 200
 
