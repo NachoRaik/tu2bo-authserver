@@ -129,7 +129,7 @@ def user_reset_password():
         msg = create_mail(user.username, user.email, code)
         mail.send(msg)
 
-        ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + datetime.timedelta(hours=1)).save()
+        ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + app.config['RESET_CODE_TTL']).save()
 
         app.logger.debug("Restart password mail sent to %s",body['email'])
         return jsonify({'response' : 'Email sent'})

@@ -16,6 +16,7 @@ class Config(object):
         self.MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'default')
         self.MAIL_PASSWORD = os.getenv('MAIL_USERNAME', 'default')
         self.MAIL_USE_SSL = True
+        self.RESET_CODE_TTL = timedelta(hours=1)
 
 class ProductionConfig(Config):
     def __init__(self):
@@ -42,3 +43,4 @@ class TestingConfig(Config):
 	        'host': 'mongomock://localhost',
             'connect': False,
         }
+        self.RESET_CODE_TTL = timedelta(milliseconds=1)
