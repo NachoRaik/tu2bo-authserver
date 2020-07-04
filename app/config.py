@@ -14,7 +14,8 @@ class Config(object):
         self.MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
         self.MAIL_PORT = os.getenv('MAIL_PORT', 465)
         self.MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'default')
-        self.MAIL_PASSWORD = os.getenv('MAIL_USERNAME', 'default')
+        self.MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', 'default')
+        self.MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'default')
         self.MAIL_USE_SSL = True
         self.RESET_CODE_TTL = timedelta(hours=1)
 

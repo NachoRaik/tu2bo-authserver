@@ -130,7 +130,7 @@ def user_reset_password():
 
         ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + app.config['RESET_CODE_TTL']).save()
 
-        app.logger.debug("Restart password mail sent to %s",body['email'])
+        app.logger.debug("Reset password mail sent to %s",body['email'])
         return jsonify({'response' : 'Email sent'})
     except User.DoesNotExist:
         return jsonify({'response' : 'Email sent'})
