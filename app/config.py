@@ -8,6 +8,11 @@ class Config(object):
 	    'host': 'mongodb://authserver-db:27017/authserver-db'
     }
     SECRET_KEY = os.getenv('SECRET_KEY', 'default')
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = 'tutubo.application@gmail.com'
+    MAIL_PASSWORD = 'edgpkkuobrohykwy'
+    MAIL_USE_SSL = True
 
 class ProductionConfig(Config):
     MONGODB_SETTINGS = {
@@ -16,13 +21,7 @@ class ProductionConfig(Config):
     }
 
 class DevelopmentConfig(Config):
-    #TESTING = True
-    #DEBUG = True
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 456
-    MAIL_USERNAME = 'olifer97@gmail.com'
-    MAIL_PASSWORD = 'xwkzrkrufbdvsvav'
-    MAIL_USE_SSL = True
+    TESTING = False
 
 class TestingConfig(Config, object):
     TESTING = True

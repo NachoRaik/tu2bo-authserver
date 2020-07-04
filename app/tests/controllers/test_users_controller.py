@@ -19,6 +19,7 @@ class TestUsersController:
         db = _get_db()
         db.drop_collection('user')
         db.drop_collection('invalid_token')
+        db.drop_collection('reset_password_code')
         disconnect(alias='test')
 
     def test_register_success(self, client):
@@ -188,4 +189,12 @@ class TestUsersController:
         users = json.loads(res.get_data()) 
         assert res.status_code == 200
         assert len(users) == 1
+    
+    def test_reset_password_success(slef, client, context_register):
+        """ POST /users/reset_passord
+        Should: return 204 and send email """
+
+        res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+
+        assert res.status_code == 204
 
