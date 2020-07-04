@@ -1,13 +1,12 @@
 import jwt
 import datetime
-import random
 from flask import Blueprint, request, jsonify, make_response
 from flask import current_app as app
 from flask_mail import Mail
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from collections import Counter
-from controllers.utils import error_response, create_mail
+from controllers.utils import error_response, create_mail, get_reset_code
 
 from mongoengine.errors import NotUniqueError, ValidationError
 from database.models.user import User
@@ -127,7 +126,8 @@ def user_reset_password():
     try:
         mail = Mail(app)
         user = User.objects.get(email=body['email'])
-        msg = create_mail(user.username, user.email)
+        code = get_reset_code()
+        msg = create_mail(user.username, user.email, code)
         mail.send(msg)
 
         ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + datetime.timedelta(hours=1)).save()

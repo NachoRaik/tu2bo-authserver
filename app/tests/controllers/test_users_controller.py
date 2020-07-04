@@ -196,5 +196,5 @@ class TestUsersController:
 
         res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
 
-        assert res.status_code == 204
+        assert res.status_code == 200
 
