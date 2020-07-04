@@ -40,4 +40,10 @@ def context_logout(client, context_login, scope='function'):
     res = logout(client, context_login)
     return context_login ##to know token logged out
 
+@pytest.fixture
+def context_reset_password(client, context_register, scope='function'):
+    """Reset password."""
+    res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+    return 1111 #code in testing
+
 
