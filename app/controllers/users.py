@@ -60,7 +60,6 @@ def user_login():
         token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
         return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
     except User.DoesNotExist:
-        app.logger.debug("no existe el usuario")
         return error_response(401, 'Wrong credentials')
 
 @bp_users.route('/', methods=['GET'], strict_slashes=False)
