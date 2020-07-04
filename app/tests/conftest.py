@@ -9,15 +9,19 @@ from tests.utils import register, login, logout
 from flask_mail import Mail
 
 @pytest.fixture
-def client():
+def app():
     """A test client for the app."""
-    app = create_app(TestingConfig)
+    app = create_app(TestingConfig())
+    return app
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
     return app.test_client()
 
 @pytest.fixture
-def mail():
+def mail(app):
     """Mailer for the app."""
-    app = create_app(TestingConfig)
     mail = Mail(app)
     return mail
 

@@ -29,7 +29,6 @@ class TestUsersController:
         res = register(client, 'oli', 'olifer97@gmail.com','123')
         body = json.loads(res.get_data())
         assert res.status_code == 200
-        assert body['id'] == 1
 
     def test_register_failure_invalid_email(self, client):
         """ POST /users/register with invalid email
@@ -185,7 +184,7 @@ class TestUsersController:
         """ GET /users/id
         Should: return 200 with user data """
 
-        res = client.get('/users')
+        res = get_users(client)
         users = json.loads(res.get_data()) 
         assert res.status_code == 200
         assert len(users) == 1
