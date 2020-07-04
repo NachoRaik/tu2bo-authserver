@@ -23,9 +23,6 @@ ENCODING_ALGORITHM = 'HS256'
 
 bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
 
-def log_message(message, app):
-    app.logger.debug(message.subject)
-
 # -- Endpoints
 
 @bp_users.route('/register', methods=['POST'], strict_slashes=False)
@@ -54,7 +51,6 @@ def user_login():
         return error_response(400, 'Cant verify email or password')
 
     try:
-        app.logger.debug(body['email'])
         user = User.objects.get(email=body['email'])
         if not check_password_hash(user.password,body['password']):
             return error_response(401, 'Wrong credentials')
