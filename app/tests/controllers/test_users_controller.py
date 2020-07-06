@@ -279,7 +279,7 @@ class TestUsersController:
         res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'), json={'password': 'newpassword'})
         assert res.status_code == 401
 
-    def test_invalid_code_after_usage(self,client, context_reset_password):
+    def test_invalid_code_after_usage(self, client, context_reset_password):
         """ POST /users/password?code=&email
         Should: return 204"""
 

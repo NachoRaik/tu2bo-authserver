@@ -144,23 +144,22 @@ def user_new_password():
         user = User.objects.get(email=email)
 
         if request.method == 'GET':
-            return make_response('Valid', 204)
+            return make_response('Valid', 200)
         
-        elif request.method == 'POST':
-            body = request.get_json()
+        body = request.get_json()
 
-            if (not body or not Counter(NEW_PASSWORD_FIELDS)==Counter(body.keys())):
-                return error_response(400, 'Missing fields')
-            
-            hashed_password = generate_password_hash(body['password'], method='sha256')
-            
-            user.password = hashed_password
-            user.save()
+        if (not body or not Counter(NEW_PASSWORD_FIELDS)==Counter(body.keys())):
+            return error_response(400, 'Missing fields')
+        
+        hashed_password = generate_password_hash(body['password'], method='sha256')
+        
+        user.password = hashed_password
+        user.save()
 
-            reset_code.delete()
+        reset_code.delete()
 
-            return make_response('Password changed', 204)
+        return make_response('Password changed', 204)
 
     except ResetPasswordCode.DoesNotExist:
-        return error_response(401, 'Invalid code')
+        return error_response(401, 'Invalid code or mail')
 
