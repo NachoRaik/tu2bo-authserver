@@ -161,5 +161,5 @@ def user_new_password():
         return make_response('Password changed', 204)
 
     except ResetPasswordCode.DoesNotExist:
-        return error_response(401, 'Invalid code or mail')
+        return error_response(401, 'Invalid code or email')
 

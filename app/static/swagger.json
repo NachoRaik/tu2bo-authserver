@@ -460,7 +460,7 @@
             "description": "Valid code"
           },
           "401": {
-            "description": "Invalid code or mail"
+            "description": "Invalid code or email"
           }
         }
       },
