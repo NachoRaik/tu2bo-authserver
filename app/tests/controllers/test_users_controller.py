@@ -223,7 +223,7 @@ class TestUsersController:
         Should: return 204"""
 
         res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'))
-        assert res.status_code == 204
+        assert res.status_code == 200
 
     def test_invalid_reset_password_code(self, client):
         """ GET /users/password?code=&email

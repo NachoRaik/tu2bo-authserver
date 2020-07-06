@@ -456,11 +456,11 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "description": "Valid code"
           },
           "401": {
-            "description": "Invalid code"
+            "description": "Invalid code or mail"
           }
         }
       },
