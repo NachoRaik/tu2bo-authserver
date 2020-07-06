@@ -141,7 +141,6 @@ def user_new_password():
     email = request.args.get('email')
     try:
         reset_code = ResetPasswordCode.objects.get(user_mail=email, code=code)
-        user = User.objects.get(email=email)
 
         if request.method == 'GET':
             return make_response('Valid', 200)
@@ -150,9 +149,10 @@ def user_new_password():
 
         if (not body or not Counter(NEW_PASSWORD_FIELDS)==Counter(body.keys())):
             return error_response(400, 'Missing fields')
-        
+
         hashed_password = generate_password_hash(body['password'], method='sha256')
         
+        user = User.objects.get(email=email)
         user.password = hashed_password
         user.save()
 
