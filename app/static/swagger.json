@@ -391,6 +391,112 @@
           }
         }
       }
+    },
+    "/users/reset_password": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Reset password",
+        "description": "",
+        "operationId": "reset_password",
+        "requestBody": {
+          "description": "Email to send code",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "olifer97@address.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent"
+          },
+          "400": {
+            "description": "Missing fields"
+          }
+        }
+      }
+    },
+    "/users/password": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Validate code",
+        "description": "",
+        "operationId": "check_reset_code",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": 1456
+            }
+          },
+          {
+            "in": "query",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "olifer97@hostname.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Valid code"
+          },
+          "401": {
+            "description": "Invalid code or email"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Change password",
+        "description": "",
+        "operationId": "new_password",
+        "requestBody": {
+          "description": "Email to send code",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "example": "newpassword"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed"
+          },
+          "401": {
+            "description": "Invalid code"
+          }
+        }
+      }
     }
   },
   "components": {

@@ -19,6 +19,7 @@ class TestUsersController:
         db = _get_db()
         db.drop_collection('user')
         db.drop_collection('invalid_token')
+        db.drop_collection('reset_password_code')
         disconnect(alias='test')
 
     def test_register_success(self, client):
@@ -187,4 +188,112 @@ class TestUsersController:
         users = json.loads(res.get_data()) 
         assert res.status_code == 200
         assert len(users) == 1
+    
+    def test_reset_password_sends_email_success(self, client, mail, context_register):
+        """ POST /users/reset_password
+        Should: return 200 and send email """
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            assert len(outbox) == 1
+            assert outbox[0].subject == '[Tutubo] Restablecer contraseña'
+            assert '1111' in outbox[0].body
+            assert res.status_code == 200
+
+    def test_reset_password_user_not_found(self, client, mail):
+        """ POST /users/reset_password
+        Should: return 200 and doesn't sends email """
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            assert len(outbox) == 0
+            assert res.status_code == 200
+
+    def test_reset_password_missing_fields(self, client, mail):
+        """ POST /users/reset_password
+        Should: return 400 and doesn't sends email """
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password')
+            assert len(outbox) == 0
+            assert res.status_code == 400
+    
+    def test_valid_reset_password_code(self, client, context_reset_password):
+        """ GET /users/password?code=&email
+        Should: return 204"""
+
+        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'))
+        assert res.status_code == 200
+
+    def test_invalid_reset_password_code(self, client):
+        """ GET /users/password?code=&email
+        Should: return 401"""
+
+        res = client.get('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'))
+        assert res.status_code == 401
+
+    def test_invalid_reset_password_email(self, client, context_reset_password):
+        """ GET /users/password?code=&email
+        Should: return 401"""
+
+        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'))
+        assert res.status_code == 401
+    
+    def test_change_password_success(self,client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 204"""
+
+        # newpassword is invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 204
+
+        # newpassword is valid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 200
+
+    def test_change_password_wrong_code_fails(self, client):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # newpassword is invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
+        # newpassword is still invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+    def test_change_password_wrong_email_fails(self, client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
+    def test_invalid_code_after_usage(self, client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 204"""
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 204
+
+        # newpassword is valid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 200
+
+        # change password with same code
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword2'})
+        assert res.status_code == 401
+
+    
 
