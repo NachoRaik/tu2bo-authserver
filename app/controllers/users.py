@@ -72,7 +72,6 @@ def construct_blueprint(current_app):
         users.status_code = 200
         return users
 
-
     @bp_users.route('/<userId>', methods=['GET', 'PUT', 'DELETE'])
     def user_profile(userId): # TODO: Paginate users    
         user = User.objects.with_id(userId) #unique id
