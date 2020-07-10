@@ -303,7 +303,7 @@ class TestUsersController:
         assert res.status_code == 200
 
         res = delete_user(client, context_register)
-        assert res.status_code == 200
+        assert res.status_code == 204
 
         res = get_user(client, context_register)
         assert res.status_code == 404
