@@ -85,7 +85,7 @@ def construct_blueprint(current_app):
 
         if request.method == 'DELETE':
             user.delete()
-            return make_response("Video deleted successfully", 200)
+            return make_response("User deleted successfully", 200)
 
         user_profile = jsonify(user.serialize())
         user_profile.status_code = 200
