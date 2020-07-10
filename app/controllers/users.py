@@ -73,7 +73,7 @@ def construct_blueprint(current_app):
         return users
 
 
-    @bp_users.route('/<userId>', methods=['GET', 'PUT'])
+    @bp_users.route('/<userId>', methods=['GET', 'PUT', 'DELETE'])
     def user_profile(userId): # TODO: Paginate users    
         user = User.objects.with_id(userId) #unique id
         if not user:
@@ -83,6 +83,10 @@ def construct_blueprint(current_app):
             body = request.get_json()
             user.profile_pic = user.profile_pic if not body or not 'picture' in body else body['picture']
             user.save()
+
+        if request.method == 'DELETE':
+            user.delete()
+            return make_response("Video deleted successfully", 200)
 
         user_profile = jsonify(user.serialize())
         user_profile.status_code = 200

@@ -37,3 +37,6 @@ def edit_user(client, id, body):
 
 def get_users(client):
     return client.get('/users')
+
+def delete_user(client, id):    
+    return client.delete('/users/{}'.format(id))

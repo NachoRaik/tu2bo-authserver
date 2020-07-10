@@ -141,7 +141,7 @@ class TestUsersController:
         assert 'profile' in user_info
         assert 'picture' not in user_info['profile']
 
-    def test_get_user_by_id_failure(self, client): # no context_register
+    def test_get_user_by_id_failure(self, client): 
         """ GET /users/id
         Should: return 404 with correct message """
 
@@ -295,5 +295,24 @@ class TestUsersController:
         res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword2'})
         assert res.status_code == 401
 
-    
+    def test_delete_user_by_id_success(self, client, context_register):
+        """ DELETE /users/id
+        Should: return 200 """
 
+        res = get_user(client, context_register)
+        assert res.status_code == 200
+
+        res = delete_user(client, context_register)
+        assert res.status_code == 200
+
+        res = get_user(client, context_register)
+        assert res.status_code == 404
+
+    def test_delete_user_by_id_failure(self, client): # no context_register
+        """ DELETE /users/id
+        Should: return 404 with correct message """
+
+        res = delete_user(client, 100)
+        body = json.loads(res.get_data())
+        assert res.status_code == 404
+        assert 'Could not find user' == body['reason']
