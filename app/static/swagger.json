@@ -390,6 +390,40 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Delete user by id",
+        "description": "",
+        "operationId": "deleteUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/users/reset_password": {
