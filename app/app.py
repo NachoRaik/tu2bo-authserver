@@ -1,4 +1,5 @@
 from flask import Flask, request, Response
+from flask_cors import CORS
 from database.db import initialize_db
 from config import DevelopmentConfig
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -11,8 +12,8 @@ JSON_TYPE = "application/json"
 # -- App setup
 def setup_blueprints(app):
     from controllers import users, monitoring, auth_users
-
-    app.register_blueprint(users.bp_users)
+    
+    app.register_blueprint(users.construct_blueprint(app))
     app.register_blueprint(monitoring.bp_monitor)
     app.register_blueprint(auth_users.bp_auth_users)
 
@@ -28,12 +29,11 @@ def setup_swaggerui(app):
     )
     app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
-
-
 # -- App creation
 
 def create_app(config=DevelopmentConfig()):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config)
     app.logger.setLevel(logging.DEBUG)
     db = initialize_db(app)

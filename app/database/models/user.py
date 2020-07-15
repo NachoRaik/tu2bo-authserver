@@ -5,10 +5,16 @@ class User(db.Document):
     email = db.EmailField(required=True, unique=True)
     password = db.StringField(required=True)
     username = db.StringField(required=True, unique=True)
+    profile_pic = db.StringField(required=False)
 
     def serialize(self): #to select what fields to return in get
+        profile_info = {}
+        if self.profile_pic: 
+            profile_info['picture'] = self.profile_pic 
+        
         return {
             'id': self.id,
             'email': self.email,
-            'username': self.username
+            'username': self.username,
+            'profile': profile_info
         }

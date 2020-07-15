@@ -6,12 +6,25 @@ from config import TestingConfig
 from mongoengine import connect, disconnect
 from app import create_app
 from tests.utils import register, login, logout
+from flask_mail import Mail
 
 @pytest.fixture
-def client():
+def app():
     """A test client for the app."""
-    app = create_app(TestingConfig)
+    app = create_app(TestingConfig())
+    return app
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
     return app.test_client()
+
+@pytest.fixture
+def mail(app):
+    """Mailer for the app."""
+    mail = Mail(app)
+    return mail
+
 
 @pytest.fixture
 def context_register(client, scope='function'):
@@ -30,5 +43,11 @@ def context_logout(client, context_login, scope='function'):
     """Login user."""
     res = logout(client, context_login)
     return context_login ##to know token logged out
+
+@pytest.fixture
+def context_reset_password(client, context_register, scope='function'):
+    """Reset password."""
+    res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+    return 1111 #code in testing
 
 

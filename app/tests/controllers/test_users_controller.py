@@ -1,7 +1,8 @@
 import pytest
+import json
 from mongoengine import connect, disconnect
 from mongoengine.connection import _get_db
-from tests.utils import register, login, authorize, logout, get_user
+from tests.utils import *
 
 class TestUsersController:
     def setup_method(self, method):
@@ -18,6 +19,7 @@ class TestUsersController:
         db = _get_db()
         db.drop_collection('user')
         db.drop_collection('invalid_token')
+        db.drop_collection('reset_password_code')
         disconnect(alias='test')
 
     def test_register_success(self, client):
@@ -25,8 +27,7 @@ class TestUsersController:
         Should: return 200 and with user id """
 
         res = register(client, 'oli', 'olifer97@gmail.com','123')
-        json = res.get_json()
-        assert json['id'] == 1
+        body = json.loads(res.get_data())
         assert res.status_code == 200
 
     def test_register_failure_invalid_email(self, client):
@@ -34,26 +35,28 @@ class TestUsersController:
         Should: return 400 and correct message """
 
         res = register(client, 'oli_wrong', 'invalid_email','123')
-        assert b'Invalid email address' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 400
+        assert 'Invalid email address' == body['reason']
 
     def test_register_failure_username_taken(self, client, context_register):
         """ POST /users/register with username taken
         Should: return 400 and correct message """
 
         res = register(client, 'oli', 'different@email.com','123') # same username as context
-        assert b'User already registered' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 409
+        assert 'User already registered' == body['reason']
     
     def test_login_success(self, client, context_register):
         """ POST /users/login
         Should: return 200 and with token """
 
         res = login(client, 'olifer97@gmail.com','123')
-        json = res.get_json()
-        assert 'token' in json
-        assert json['user']['username'] == 'oli'
-        assert json['user']['email'] == 'olifer97@gmail.com'
+        body = json.loads(res.get_data())
+        assert 'token' in body
+        assert body['user']['username'] == 'oli'
+        assert body['user']['email'] == 'olifer97@gmail.com'
         assert res.status_code == 200
 
     def test_login_failure_password(self, client, context_register):
@@ -61,23 +64,25 @@ class TestUsersController:
         Should: return 401 and correct message """
 
         res = login(client, 'olifer97@gmail.com','wrong')
-        assert b'Password incorrect' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Wrong credentials' == body['reason']
 
     def test_login_failure_inexistent(self, client): # without context_register
         """ POST /users/login user does not exist
         Should: return 401 and correct message """
 
         res = login(client, 'olifer97@gmail.com','123')
-        assert b'Could not find user' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Wrong credentials' == body['reason']
 
     def test_authorize_success(self, client, context_login):
         """ POST /users/authorize
         Should: return 200 """
 
         res = authorize(client, context_login)
-        user_info = res.get_json()
+        user_info = json.loads(res.get_data())
         assert res.status_code == 200
         assert user_info['user']['username'] == 'oli'
         assert user_info['user']['email'] == 'olifer97@gmail.com'
@@ -87,24 +92,27 @@ class TestUsersController:
         Should: return 401 """
 
         res = authorize(client, 'invalidtoken')
-        assert b'Invalid Token' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid Token' == body['reason']
 
     def test_authorize_failure_logged_out(self, client, context_logout):
         """ POST /users/authorize token logged out
         Should: return 401 """
 
         res = authorize(client, context_logout)
-        assert b'Invalid Token' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid Token' == body['reason']
 
     def test_authorize_failure_not_found(self, client):
         """ POST /users/authorize token not found
         Should: return 401 """
 
         res = authorize(client)
-        assert b'Token not found' in res.data
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Token not found' == body['reason']
 
     def test_logout_success(self, client, context_login):
         """ POST /users/logout
@@ -118,6 +126,7 @@ class TestUsersController:
         Should: return 401 """
 
         res = logout(client)
+        body = json.loads(res.get_data())
         assert res.status_code == 401
 
     def test_get_user_by_id_success(self, client, context_register):
@@ -125,26 +134,185 @@ class TestUsersController:
         Should: return 200 with user data """
 
         res = get_user(client, context_register)
-        user_info = res.get_json() 
+        user_info = json.loads(res.get_data()) 
         assert res.status_code == 200
         assert user_info['username'] == 'oli'
         assert user_info['email'] == 'olifer97@gmail.com'
+        assert 'profile' in user_info
+        assert 'picture' not in user_info['profile']
 
-    def test_get_user_by_id_failure(self, client): # no context_register
+    def test_get_user_by_id_failure(self, client): 
         """ GET /users/id
-        Should: return 401 with correct message """
+        Should: return 404 with correct message """
 
         res = get_user(client, 1)
-        user_info = res.get_json() 
-        assert b'Could not find user' in res.data
-        assert res.status_code == 401
+        body = json.loads(res.get_data())
+        assert res.status_code == 404
+        assert 'Could not find user' == body['reason']
+
+    def test_edit_user_profile_pic(self, client, context_register):
+        """ GET /users/id
+        Should: return 200 with updated user data """
+
+        res =  edit_user(client, context_register, {'picture': 'someUrl.com/myImage'})
+        user_info = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert user_info['profile']['picture'] == 'someUrl.com/myImage'
+
+        # checking if it is persisted
+        res = get_user(client, context_register)
+        user_info = json.loads(res.get_data()) 
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert user_info['profile']['picture'] == 'someUrl.com/myImage'
+
+    def test_edit_user_inexistent_field(self, client, context_register):
+        """ GET /users/id
+        Should: return 200 with same user data """
+
+        res =  edit_user(client, context_register, {'myRandomField': 'blabla'})
+        user_info = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert user_info['username'] == 'oli'
+        assert user_info['email'] == 'olifer97@gmail.com'
+        assert 'myRandomField' not in user_info['profile']
 
     def test_get_users_success(self, client, context_register):
         """ GET /users/id
         Should: return 200 with user data """
 
-        res = client.get('/users')
-        users = res.get_json() 
+        res = get_users(client)
+        users = json.loads(res.get_data()) 
         assert res.status_code == 200
         assert len(users) == 1
+    
+    def test_reset_password_sends_email_success(self, client, mail, context_register):
+        """ POST /users/reset_password
+        Should: return 200 and send email """
 
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            assert len(outbox) == 1
+            assert outbox[0].subject == '[Tutubo] Restablecer contraseña'
+            assert '1111' in outbox[0].body
+            assert res.status_code == 200
+
+    def test_reset_password_user_not_found(self, client, mail):
+        """ POST /users/reset_password
+        Should: return 200 and doesn't sends email """
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            assert len(outbox) == 0
+            assert res.status_code == 200
+
+    def test_reset_password_missing_fields(self, client, mail):
+        """ POST /users/reset_password
+        Should: return 400 and doesn't sends email """
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password')
+            assert len(outbox) == 0
+            assert res.status_code == 400
+    
+    def test_valid_reset_password_code(self, client, context_reset_password):
+        """ GET /users/password?code=&email
+        Should: return 204"""
+
+        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'))
+        assert res.status_code == 200
+
+    def test_invalid_reset_password_code(self, client):
+        """ GET /users/password?code=&email
+        Should: return 401"""
+
+        res = client.get('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'))
+        assert res.status_code == 401
+
+    def test_invalid_reset_password_email(self, client, context_reset_password):
+        """ GET /users/password?code=&email
+        Should: return 401"""
+
+        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'))
+        assert res.status_code == 401
+    
+    def test_change_password_success(self,client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 204"""
+
+        # newpassword is invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 204
+
+        # newpassword is valid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 200
+
+    def test_change_password_wrong_code_fails(self, client):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # newpassword is invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
+        # newpassword is still invalid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 401
+
+    def test_change_password_wrong_email_fails(self, client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 401"""
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 401
+
+    def test_invalid_code_after_usage(self, client, context_reset_password):
+        """ POST /users/password?code=&email
+        Should: return 204"""
+
+        # change password
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        assert res.status_code == 204
+
+        # newpassword is valid
+        res_login = login(client, 'olifer97@gmail.com','newpassword')
+        assert res_login.status_code == 200
+
+        # change password with same code
+        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword2'})
+        assert res.status_code == 401
+
+    def test_delete_user_by_id_success(self, client, context_register):
+        """ DELETE /users/id
+        Should: return 200 """
+
+        res = get_user(client, context_register)
+        assert res.status_code == 200
+
+        res = delete_user(client, context_register)
+        assert res.status_code == 204
+
+        res = get_user(client, context_register)
+        assert res.status_code == 404
+
+    def test_delete_user_by_id_failure(self, client): # no context_register
+        """ DELETE /users/id
+        Should: return 404 with correct message """
+
+        res = delete_user(client, 100)
+        body = json.loads(res.get_data())
+        assert res.status_code == 404
+        assert 'Could not find user' == body['reason']

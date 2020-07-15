@@ -12,3 +12,5 @@ mongomock
 pytest
 coverage
 flask_swagger_ui
+flask-cors
+Flask-Mail
