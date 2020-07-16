@@ -316,3 +316,41 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 404
         assert 'Could not find user' == body['reason']
+
+
+    def test_register_oauth_success(self, client):
+        """ POST /users/oauth2login
+        Should: return 200 and with user id """
+
+        res = oauth2_login(client, 'olifer97@gmail.com')
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+
+    def test_register_oauth_success(self, client):
+        """ POST /users/oauth2login
+        Should: return 200 and with user id """
+
+        res = oauth2_login(client, 'olifer97@gmail.com')
+        assert res.status_code == 200
+
+    def test_register_oauth_verify_email(self, client):
+        """ POST /users/oauth2login
+        Should: return the email correctly """
+
+        res = oauth2_login(client, 'olifer97@gmail.com')
+        body = json.loads(res.get_data())
+        assert body['user']['email'] == 'olifer97@gmail.com'
+
+    def test_login_oauth_after_register(self, client):
+        """ POST /users/oauth2login
+        Should: return the same id, only generated once """
+
+        #Register
+        res = oauth2_login(client, 'olifer97@gmail.com')
+        body = json.loads(res.get_data())
+        generated_id = body['user']['id']
+
+        #Login
+        res = oauth2_login(client, 'olifer97@gmail.com')
+        body = json.loads(res.get_data())
+        assert body['user']['id'] == generated_id

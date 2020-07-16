@@ -21,6 +21,14 @@ def login(client, email, password):
         'password': password
     })
 
+def oauth2_login(client, email):
+    return client.post('/users/oauth2login', json={
+        'email': email,
+        'accessToken': 1,
+        'idToken': 1,
+        'photoURL': 'someUrl'
+    })
+
 def logout(client, token=None):
     headers = None if not token else {'access-token': token}
     return client.post('/users/logout', headers=headers)
