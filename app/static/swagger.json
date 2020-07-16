@@ -505,8 +505,28 @@
         "summary": "Change password",
         "description": "",
         "operationId": "new_password",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": 1456
+            }
+          },
+          {
+            "in": "query",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "olifer97@hostname.com"
+            }
+          }
+        ],
         "requestBody": {
-          "description": "Email to send code",
+          "description": "Password to change",
           "required": true,
           "content": {
             "application/json": {
@@ -526,8 +546,11 @@
           "204": {
             "description": "Password changed"
           },
+          "400": {
+            "description": "Missing fields"
+          },
           "401": {
-            "description": "Invalid code"
+            "description": "Invalid code or email"
           }
         }
       }
