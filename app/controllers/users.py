@@ -20,7 +20,6 @@ from google.auth.transport import requests
 
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
-OAUTH_FIELDS = ['email','accessToken','idToken','photoURL']
 LOGIN_FIELDS = ['email','password']
 RESET_PASSWORD_FIELDS = ['email']
 NEW_PASSWORD_FIELDS = ['password']
@@ -73,24 +72,22 @@ def construct_blueprint(current_app):
     @bp_users.route('/oauth2login', methods=['POST'], strict_slashes=False)
     def user_oauth_login():
         body = request.get_json()
-        if (not body or not Counter(OAUTH_FIELDS)==Counter(body.keys())):
+        if (not body or 'idToken' not in body.keys()):
             return error_response(400, 'Cant verify login credentials')
 
         try:
             idinfo = id_token.verify_oauth2_token(body['idToken'], requests.Request()) if not app.config['TESTING'] else {'email':body['email']}
-            if ((not 'email' in idinfo) or body['email'] != idinfo['email']):
-                return error_response(403, 'Forbidden')
-
-            email = body['email']
+            email = idinfo['email']
             user = User.objects(email=email)
             if not user:
                 username = email.split('@')[0]
                 username = "o_" + username
-                user = User(email=email,profile_pic=body['photoURL'],username=username).save()
+                photo = body['photoURL'] if 'photoURL' in body else None
+                user = User(email=email, profile_pic=photo, username=username).save()
             else:
                 user = user[0]
-            token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
-            return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
+            token = jwt.encode({'email':user.email, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
+            return jsonify({'token': token.decode('UTF-8'), "user": user.serialize()})
         except ValueError as err:
             return error_response(401, 'Cant verify Google credentials ' + str(err))
 
