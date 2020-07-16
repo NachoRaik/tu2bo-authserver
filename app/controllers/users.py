@@ -20,7 +20,7 @@ from google.auth.transport import requests
 
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
-OAUTH_FIELDS = ['email','accessToken','IDToken','photoURL']
+OAUTH_FIELDS = ['email','accessToken','idToken','photoURL']
 LOGIN_FIELDS = ['email','password']
 RESET_PASSWORD_FIELDS = ['email']
 NEW_PASSWORD_FIELDS = ['password']
@@ -39,7 +39,7 @@ def construct_blueprint(current_app):
     @add_user_count
     def register_user():
         body = request.get_json()
-        if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys())):
+        if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys()) or len(body['password'])==0):
             app.logger.debug(" Registration || FAILURE || Bad Request --> %s %s", body, request.content_length, request.content_type)
             return error_response(400, 'Cant verify register')
 
@@ -77,7 +77,7 @@ def construct_blueprint(current_app):
             return error_response(400, 'Cant verify login credentials')
 
         try:
-            idinfo = id_token.verify_oauth2_token(body['accesToken'], requests.Request())
+            idinfo = id_token.verify_oauth2_token(body['idToken'], requests.Request())
             if ((not 'email' in idinfo) or body['email'] != idinfo['email']):
                 return error_response(403, 'Forbidden')
 
@@ -85,11 +85,14 @@ def construct_blueprint(current_app):
             user = User.objects(email=email)
             if not user:
                 username = email.split('@')[0]
+                username = "o_" + username
                 user = User(email=email,profile_pic=body['photoURL'],username=username).save()
+            else:
+                user = user[0]
             token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
-        except ValueError:
-            return error_response(401, 'Cant verify Google credentials')
+        except ValueError as err:
+            return error_response(401, 'Cant verify Google credentials ' + str(err))
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
     def get_users():
