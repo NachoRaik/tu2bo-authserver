@@ -15,8 +15,12 @@ from database.models.invalid_token import InvalidToken
 from database.models.reset_password_code import ResetPasswordCode
 from middlewares.metrics import add_user_count
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
+OAUTH_FIELDS = ['email','accessToken','IDToken','photoURL']
 LOGIN_FIELDS = ['email','password']
 RESET_PASSWORD_FIELDS = ['email']
 NEW_PASSWORD_FIELDS = ['password']
@@ -65,6 +69,27 @@ def construct_blueprint(current_app):
             return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
         except User.DoesNotExist:
             return error_response(401, 'Wrong credentials')
+
+    @bp_users.route('/oauth2login', methods=['POST'], strict_slashes=False)
+    def user_oauth_login():
+        body = request.get_json()
+        if (not body or not Counter(OAUTH_FIELDS)==Counter(body.keys())):
+            return error_response(400, 'Cant verify login credentials')
+
+        try:
+            idinfo = id_token.verify_oauth2_token(body['accesToken'], requests.Request())
+            if ((not 'email' in idinfo) or body['email'] != idinfo['email']):
+                return error_response(403, 'Forbidden')
+
+            email = body['email']
+            user = User.objects(email=email)
+            if not user:
+                username = email.split('@')[0]
+                user = User(email=email,profile_pic=body['photoURL'],username=username).save()
+            token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
+            return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
+        except ValueError:
+            return error_response(401, 'Cant verify Google credentials')
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
     def get_users():
