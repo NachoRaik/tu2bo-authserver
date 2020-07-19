@@ -76,7 +76,7 @@ def construct_blueprint(current_app):
             return error_response(400, 'Cant verify login credentials')
 
         try:
-            idinfo = id_token.verify_oauth2_token(body['idToken'], requests.Request()) if not app.config['TESTING'] else {'email':body['email']}
+            idinfo = id_token.verify_oauth2_token(body['idToken'], requests.Request()) if not app.config['TESTING'] else {'email':body['idToken']}
             email = idinfo['email']
             user = User.objects(email=email)
             if not user:

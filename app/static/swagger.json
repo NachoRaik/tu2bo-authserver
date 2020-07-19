@@ -190,10 +190,6 @@
                     "type": "string",
                     "example": "someGoogleToken"
                   },
-                  "email": {
-                    "type": "string",
-                    "example": "olifer97@gmail.com"
-                  },
                   "photoURL": {
                     "type": "string",
                     "example": "someURL"

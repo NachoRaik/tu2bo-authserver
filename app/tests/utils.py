@@ -23,8 +23,7 @@ def login(client, email, password):
 
 def oauth2_login(client, email=None, photo=None):
     return client.post('/users/oauth2login', json={
-        'email': email,
-        'idToken': 1,
+        'idToken': email,
         'photoURL': photo
     })
 
