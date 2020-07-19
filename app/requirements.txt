@@ -14,3 +14,4 @@ coverage
 flask_swagger_ui
 flask-cors
 Flask-Mail
+google-api-python-client

@@ -170,6 +170,92 @@
         }
       }
     },
+    "/users/oauth2login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Logs user into the system by external service",
+        "description": "",
+        "operationId": "oauthLogin",
+        "requestBody": {
+          "description": "Login credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "idToken": {
+                    "type": "string",
+                    "example": "someGoogleToken"
+                  },
+                  "photoURL": {
+                    "type": "string",
+                    "example": "someURL"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "aToken"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "olifer97"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "olifer97@address.com"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Insufficient fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Bad credentials or inexistent user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/logout": {
       "post": {
         "tags": [

@@ -15,12 +15,15 @@ from database.models.invalid_token import InvalidToken
 from database.models.reset_password_code import ResetPasswordCode
 from middlewares.metrics import add_user_count
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 HEADER_ACCESS_TOKEN = 'access-token'
 REGISTER_FIELDS = ['email','password','username']
 LOGIN_FIELDS = ['email','password']
 RESET_PASSWORD_FIELDS = ['email']
 NEW_PASSWORD_FIELDS = ['password']
-
+OAUTH_FIELD = 'idToken'
 ENCODING_ALGORITHM = 'HS256'
 
 
@@ -28,17 +31,17 @@ ENCODING_ALGORITHM = 'HS256'
 
 def construct_blueprint(current_app):
     bp_users = Blueprint("bp_users", __name__, url_prefix="/users")
-    
+
     mail = Mail(current_app)
 
     @bp_users.route('/register', methods=['POST'], strict_slashes=False)
     @add_user_count
     def register_user():
         body = request.get_json()
-        if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys())):
+        if (not body or not Counter(REGISTER_FIELDS)==Counter(body.keys()) or len(body['password'])==0):
             app.logger.debug(" Registration || FAILURE || Bad Request --> %s %s", body, request.content_length, request.content_type)
             return error_response(400, 'Cant verify register')
-        
+
         hashed_password = generate_password_hash(body['password'], method='sha256')
         try:
             user = User(email=body['email'],password=hashed_password,username=body['username']).save()
@@ -61,10 +64,32 @@ def construct_blueprint(current_app):
             user = User.objects.get(email=body['email'])
             if not check_password_hash(user.password,body['password']):
                 return error_response(401, 'Wrong credentials')
-            token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=24)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
+            token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
         except User.DoesNotExist:
             return error_response(401, 'Wrong credentials')
+
+    @bp_users.route('/oauth2login', methods=['POST'], strict_slashes=False)
+    def user_oauth_login():
+        body = request.get_json()
+        if (not body or not OAUTH_FIELD in body.keys()):
+            return error_response(400, 'Cant verify login credentials')
+
+        try:
+            idinfo = id_token.verify_oauth2_token(body['idToken'], requests.Request()) if not app.config['TESTING'] else {'email':body['idToken']}
+            email = idinfo['email']
+            user = User.objects(email=email)
+            if not user:
+                username = email.split('@')[0]
+                username = "o_" + username
+                photo = body['photoURL'] if 'photoURL' in body else None
+                user = User(email=email, profile_pic=photo, username=username).save()
+            else:
+                user = user[0]
+            token = jwt.encode({'email':user.email, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
+            return jsonify({'token': token.decode('UTF-8'), "user": user.serialize()})
+        except ValueError as err:
+            return error_response(401, 'Cant verify Google credentials ' + str(err))
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
     def get_users():
@@ -73,11 +98,11 @@ def construct_blueprint(current_app):
         return users
 
     @bp_users.route('/<userId>', methods=['GET', 'PUT', 'DELETE'])
-    def user_profile(userId): # TODO: Paginate users    
+    def user_profile(userId):
         user = User.objects.with_id(userId) #unique id
         if not user:
             return error_response(404, 'Could not find user')
-        
+
         if request.method == 'PUT':
             body = request.get_json()
             user.profile_pic = user.profile_pic if not body or not 'picture' in body else body['picture']
@@ -96,10 +121,10 @@ def construct_blueprint(current_app):
     def user_authorize():
         if HEADER_ACCESS_TOKEN not in request.headers:
             return error_response(401, "Token not found")
-        
+
         token = request.headers[HEADER_ACCESS_TOKEN]
         try:
-            if len(InvalidToken.objects(token=token)) > 0: 
+            if len(InvalidToken.objects(token=token)) > 0:
                 raise "Invalid Token" # token logged out
 
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
@@ -113,7 +138,7 @@ def construct_blueprint(current_app):
     def user_logout():
         if HEADER_ACCESS_TOKEN not in request.headers:
             return error_response(401, "Token not found")
-        
+
         token = request.headers[HEADER_ACCESS_TOKEN]
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
@@ -150,14 +175,14 @@ def construct_blueprint(current_app):
 
             if request.method == 'GET':
                 return make_response('Valid', 200)
-            
+
             body = request.get_json()
 
             if (not body or not Counter(NEW_PASSWORD_FIELDS)==Counter(body.keys())):
                 return error_response(400, 'Missing fields')
 
             hashed_password = generate_password_hash(body['password'], method='sha256')
-            
+
             user = User.objects.get(email=email)
             user.password = hashed_password
             user.save()
@@ -168,6 +193,5 @@ def construct_blueprint(current_app):
 
         except ResetPasswordCode.DoesNotExist:
             return error_response(401, 'Invalid code or email')
-    
-    return bp_users
 
+    return bp_users
