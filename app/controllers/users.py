@@ -23,7 +23,7 @@ REGISTER_FIELDS = ['email','password','username']
 LOGIN_FIELDS = ['email','password']
 RESET_PASSWORD_FIELDS = ['email']
 NEW_PASSWORD_FIELDS = ['password']
-
+OAUTH_FIELD = 'idToken'
 ENCODING_ALGORITHM = 'HS256'
 
 
@@ -72,7 +72,7 @@ def construct_blueprint(current_app):
     @bp_users.route('/oauth2login', methods=['POST'], strict_slashes=False)
     def user_oauth_login():
         body = request.get_json()
-        if (not body or 'idToken' not in body.keys()):
+        if (not body or not OAUTH_FIELD in body.keys()):
             return error_response(400, 'Cant verify login credentials')
 
         try:
