@@ -98,7 +98,7 @@ def construct_blueprint(current_app):
         return users
 
     @bp_users.route('/<userId>', methods=['GET', 'PUT', 'DELETE'])
-    def user_profile(userId): # TODO: Paginate users
+    def user_profile(userId):
         user = User.objects.with_id(userId) #unique id
         if not user:
             return error_response(404, 'Could not find user')

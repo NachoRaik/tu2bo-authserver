@@ -47,7 +47,7 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 409
         assert 'User already registered' == body['reason']
-    
+
     def test_login_success(self, client, context_register):
         """ POST /users/login
         Should: return 200 and with token """
@@ -134,14 +134,14 @@ class TestUsersController:
         Should: return 200 with user data """
 
         res = get_user(client, context_register)
-        user_info = json.loads(res.get_data()) 
+        user_info = json.loads(res.get_data())
         assert res.status_code == 200
         assert user_info['username'] == 'oli'
         assert user_info['email'] == 'olifer97@gmail.com'
         assert 'profile' in user_info
         assert 'picture' not in user_info['profile']
 
-    def test_get_user_by_id_failure(self, client): 
+    def test_get_user_by_id_failure(self, client):
         """ GET /users/id
         Should: return 404 with correct message """
 
@@ -163,7 +163,7 @@ class TestUsersController:
 
         # checking if it is persisted
         res = get_user(client, context_register)
-        user_info = json.loads(res.get_data()) 
+        user_info = json.loads(res.get_data())
         assert res.status_code == 200
         assert user_info['username'] == 'oli'
         assert user_info['email'] == 'olifer97@gmail.com'
@@ -185,10 +185,10 @@ class TestUsersController:
         Should: return 200 with user data """
 
         res = get_users(client)
-        users = json.loads(res.get_data()) 
+        users = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(users) == 1
-    
+
     def test_reset_password_sends_email_success(self, client, mail, context_register):
         """ POST /users/reset_password
         Should: return 200 and send email """
@@ -217,7 +217,7 @@ class TestUsersController:
             res = client.post('/users/reset_password')
             assert len(outbox) == 0
             assert res.status_code == 400
-    
+
     def test_valid_reset_password_code(self, client, context_reset_password):
         """ GET /users/password?code=&email
         Should: return 204"""
@@ -238,7 +238,7 @@ class TestUsersController:
 
         res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'))
         assert res.status_code == 401
-    
+
     def test_change_password_success(self,client, context_reset_password):
         """ POST /users/password?code=&email
         Should: return 204"""
@@ -326,12 +326,6 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 200
 
-    def test_register_oauth_success(self, client):
-        """ POST /users/oauth2login
-        Should: return 200 and with user id """
-
-        res = oauth2_login(client, 'olifer97@gmail.com')
-        assert res.status_code == 200
 
     def test_register_oauth_verify_email(self, client):
         """ POST /users/oauth2login
