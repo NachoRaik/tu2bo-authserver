@@ -710,6 +710,42 @@
           }
         }
       }
+    },
+    "/stats": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get number of users through time",
+        "description": "",
+        "operationId": "getStats",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06/29/20 18:03:31"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -770,6 +806,19 @@
           "reason": {
             "type": "string",
             "example": "Already taken"
+          }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 1
+          },
+          "date": {
+            "type": "string",
+            "example": "06/29/20 18:03:31"
           }
         }
       }
