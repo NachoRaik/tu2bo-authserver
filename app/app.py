@@ -11,11 +11,10 @@ JSON_TYPE = "application/json"
 
 # -- App setup
 def setup_blueprints(app):
-    from controllers import users, monitoring, auth_users
+    from controllers import users, monitoring
     
     app.register_blueprint(users.construct_blueprint(app))
     app.register_blueprint(monitoring.bp_monitor)
-    app.register_blueprint(auth_users.bp_auth_users)
 
 def setup_swaggerui(app):
     SWAGGER_URL = '/swagger'

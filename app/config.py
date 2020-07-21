@@ -11,6 +11,7 @@ class Config(object):
 	        'host': 'mongodb://authserver-db:27017/authserver-db'
         }
         self.SECRET_KEY = os.getenv('SECRET_KEY', 'default')
+        self.MASTER_API_KEY = os.getenv('MASTER_API_KEY', 'asdf')
         self.MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
         self.MAIL_PORT = os.getenv('MAIL_PORT', 465)
         self.MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'default')
@@ -45,3 +46,4 @@ class TestingConfig(Config):
             'connect': False,
         }
         self.RESET_CODE_TTL = timedelta(milliseconds=1)
+        self.MASTER_API_KEY = 'asdf'

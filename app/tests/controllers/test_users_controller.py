@@ -194,7 +194,7 @@ class TestUsersController:
         Should: return 200 and send email """
 
         with mail.record_messages() as outbox:
-            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            res = reset_password(client, 'olifer97@gmail.com')
             assert len(outbox) == 1
             assert outbox[0].subject == '[Tutubo] Restablecer contraseña'
             assert '1111' in outbox[0].body
@@ -205,7 +205,7 @@ class TestUsersController:
         Should: return 200 and doesn't sends email """
 
         with mail.record_messages() as outbox:
-            res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+            res = reset_password(client, 'olifer97@gmail.com')
             assert len(outbox) == 0
             assert res.status_code == 200
 
@@ -214,30 +214,34 @@ class TestUsersController:
         Should: return 400 and doesn't sends email """
 
         with mail.record_messages() as outbox:
-            res = client.post('/users/reset_password')
+            res = reset_password(client)
             assert len(outbox) == 0
             assert res.status_code == 400
 
     def test_valid_reset_password_code(self, client, context_reset_password):
         """ GET /users/password?code=&email
-        Should: return 204"""
+        Should: return 200"""
 
-        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'))
+        res = validate_reset_code(client, context_reset_password, 'olifer97@gmail.com')
         assert res.status_code == 200
 
     def test_invalid_reset_password_code(self, client):
         """ GET /users/password?code=&email
         Should: return 401"""
 
-        res = client.get('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'))
+        res = validate_reset_code(client, 0000, 'olifer97@gmail.com')
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid code or email' == body['reason']
 
     def test_invalid_reset_password_email(self, client, context_reset_password):
         """ GET /users/password?code=&email
         Should: return 401"""
 
-        res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'))
+        res = validate_reset_code(client, context_reset_password, 'invalid@gmail.com')
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid code or email' == body['reason']
 
     def test_change_password_success(self,client, context_reset_password):
         """ POST /users/password?code=&email
@@ -248,7 +252,7 @@ class TestUsersController:
         assert res_login.status_code == 401
 
         # change password
-        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        res = change_password(client, context_reset_password, 'olifer97@gmail.com', 'newpassword')
         assert res.status_code == 204
 
         # newpassword is valid
@@ -264,8 +268,10 @@ class TestUsersController:
         assert res_login.status_code == 401
 
         # change password
-        res = client.post('/users/password?code={}&email={}'.format(0000, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        res = change_password(client, 0000, 'olifer97@gmail.com', 'newpassword')
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid code or email' == body['reason']
 
         # newpassword is still invalid
         res_login = login(client, 'olifer97@gmail.com','newpassword')
@@ -276,15 +282,17 @@ class TestUsersController:
         Should: return 401"""
 
         # change password
-        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'), json={'password': 'newpassword'})
+        res = change_password(client, context_reset_password, 'invalid@gmail.com', 'newpassword')
+        body = json.loads(res.get_data())
         assert res.status_code == 401
+        assert 'Invalid code or email' == body['reason']
 
     def test_invalid_code_after_usage(self, client, context_reset_password):
         """ POST /users/password?code=&email
         Should: return 204"""
 
         # change password
-        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword'})
+        res = change_password(client, context_reset_password, 'olifer97@gmail.com', 'newpassword')
         assert res.status_code == 204
 
         # newpassword is valid
@@ -292,7 +300,7 @@ class TestUsersController:
         assert res_login.status_code == 200
 
         # change password with same code
-        res = client.post('/users/password?code={}&email={}'.format(context_reset_password, 'olifer97@gmail.com'), json={'password': 'newpassword2'})
+        res = change_password(client, context_reset_password, 'olifer97@gmail.com', 'newpassword')
         assert res.status_code == 401
 
     def test_delete_user_by_id_success(self, client, context_register):

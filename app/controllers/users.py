@@ -14,6 +14,7 @@ from database.models.user import User
 from database.models.invalid_token import InvalidToken
 from database.models.reset_password_code import ResetPasswordCode
 from middlewares.metrics import add_user_count
+from middlewares.security_wrapper import has_api_key
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -35,6 +36,7 @@ def construct_blueprint(current_app):
     mail = Mail(current_app)
 
     @bp_users.route('/register', methods=['POST'], strict_slashes=False)
+    @has_api_key
     @add_user_count
     def register_user():
         body = request.get_json()
@@ -55,6 +57,7 @@ def construct_blueprint(current_app):
             return error_response(400, 'Invalid email address')
 
     @bp_users.route('/login', methods=['POST'], strict_slashes=False)
+    @has_api_key
     def user_login():
         body = request.get_json()
         if (not body or not Counter(LOGIN_FIELDS)==Counter(body.keys())):
@@ -70,6 +73,7 @@ def construct_blueprint(current_app):
             return error_response(401, 'Wrong credentials')
 
     @bp_users.route('/oauth2login', methods=['POST'], strict_slashes=False)
+    @has_api_key
     def user_oauth_login():
         body = request.get_json()
         if (not body or not OAUTH_FIELD in body.keys()):
@@ -92,12 +96,14 @@ def construct_blueprint(current_app):
             return error_response(401, 'Cant verify Google credentials ' + str(err))
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
+    @has_api_key
     def get_users():
         users = jsonify(list(map(lambda user: user.serialize(), User.objects())))
         users.status_code = 200
         return users
 
     @bp_users.route('/<userId>', methods=['GET', 'PUT', 'DELETE'])
+    @has_api_key
     def user_profile(userId):
         user = User.objects.with_id(userId) #unique id
         if not user:
@@ -118,6 +124,7 @@ def construct_blueprint(current_app):
 
 
     @bp_users.route('/authorize', methods=['POST'])
+    @has_api_key
     def user_authorize():
         if HEADER_ACCESS_TOKEN not in request.headers:
             return error_response(401, "Token not found")
@@ -135,6 +142,7 @@ def construct_blueprint(current_app):
 
 
     @bp_users.route('/logout', methods=['POST'])
+    @has_api_key
     def user_logout():
         if HEADER_ACCESS_TOKEN not in request.headers:
             return error_response(401, "Token not found")
@@ -148,6 +156,7 @@ def construct_blueprint(current_app):
             return make_response("Logged out", 205)
 
     @bp_users.route('/reset_password', methods=['POST'], strict_slashes=False)
+    @has_api_key
     def user_reset_password():
         body = request.get_json()
         if (not body or not Counter(RESET_PASSWORD_FIELDS)==Counter(body.keys())):
@@ -167,6 +176,7 @@ def construct_blueprint(current_app):
             return jsonify({'response' : 'Email sent'})
 
     @bp_users.route('/password', methods=['GET','POST'], strict_slashes=False)
+    @has_api_key
     def user_new_password():
         code = int(request.args.get('code'))
         email = request.args.get('email')
