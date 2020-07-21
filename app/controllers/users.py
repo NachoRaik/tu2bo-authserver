@@ -64,6 +64,8 @@ def construct_blueprint(current_app):
             user = User.objects.get(email=body['email'])
             if not check_password_hash(user.password,body['password']):
                 return error_response(401, 'Wrong credentials')
+            if user.is_blocked:
+                return error_response(401, "User is blocked")
             token = jwt.encode({'email':user.email,'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)},app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token' : token.decode('UTF-8'), "user": user.serialize()})
         except User.DoesNotExist:
@@ -129,6 +131,8 @@ def construct_blueprint(current_app):
 
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=[ENCODING_ALGORITHM])
             user = User.objects.get(email=data['email'])
+            if user.is_blocked:
+                return error_response(401, "User is blocked")
             return jsonify({"user": user.serialize()})
         except:
             return error_response(401, "Invalid Token")
@@ -193,5 +197,16 @@ def construct_blueprint(current_app):
 
         except ResetPasswordCode.DoesNotExist:
             return error_response(401, 'Invalid code or email')
+
+    @bp_users.route('/<userId>/blocked', methods=['POST', 'DELETE'], strict_slashes=False)
+    def block_user(userId):
+        user = User.objects.with_id(userId) #unique id
+        if not user:
+            return error_response(404, 'Could not find user')
+        
+        user.is_blocked = request.method == 'POST'
+        user.save()
+        response = 'User blocked' if request.method == 'POST' else 'User unblocked'
+        return make_response(response, 204)
 
     return bp_users

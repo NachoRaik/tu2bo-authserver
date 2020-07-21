@@ -512,6 +512,76 @@
         }
       }
     },
+    "/users/{id}/blocked": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Block user by id",
+        "description": "",
+        "operationId": "blockUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User blocked"
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Unblock user by id",
+        "description": "",
+        "operationId": "unblockUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User unblocked"
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/reset_password": {
       "post": {
         "tags": [

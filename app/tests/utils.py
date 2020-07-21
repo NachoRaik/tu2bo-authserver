@@ -46,3 +46,9 @@ def get_users(client):
 
 def delete_user(client, id):
     return client.delete('/users/{}'.format(id))
+
+def block_user(client, id):
+    return client.post('/users/{}/blocked'.format(id))
+
+def unblock_user(client, id):
+    return client.delete('/users/{}/blocked'.format(id))
