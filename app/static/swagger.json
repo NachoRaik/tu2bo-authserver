@@ -158,7 +158,7 @@
             }
           },
           "401": {
-            "description": "Bad credentials or inexistent user",
+            "description": "Bad credentials or inexistent user or user blocked",
             "content": {
               "application/json": {
                 "schema": {
@@ -340,7 +340,7 @@
             }
           },
           "401": {
-            "description": "Token not found or invalid",
+            "description": "Token not found or invalid or user blocked",
             "content": {
               "application/json": {
                 "schema": {
