@@ -95,7 +95,7 @@ def construct_blueprint(current_app):
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
     def get_users():
-        users = jsonify(list(map(lambda user: user.serialize(), User.objects())))
+        users = jsonify(list(map(lambda user: user.serialize_admin(), User.objects())))
         users.status_code = 200
         return users
 
