@@ -3,6 +3,9 @@ import json
 from mongoengine import connect, disconnect
 from mongoengine.connection import _get_db
 from tests.utils import *
+from datetime import datetime
+
+TIME_FORMAT = "%m/%d/%y %H:%M:%S"
 
 class TestMonitoringController:
     def setup_method(self, method):
@@ -26,7 +29,7 @@ class TestMonitoringController:
         """ GET /stats 
         Should: return 200 and stats"""
 
-        res = get_stats(client, initial_date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date=datetime.now().strftime(TIME_FORMAT))
         assert res.status_code == 200
 
         body = json.loads(res.get_data())
@@ -39,7 +42,7 @@ class TestMonitoringController:
         res = register(client, 'user', 'test@mail.com', '123')
         assert res.status_code == 200
 
-        res = get_stats(client, initial_date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date=datetime.now().strftime(TIME_FORMAT))
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == 1
@@ -53,40 +56,12 @@ class TestMonitoringController:
         for i in range(cant_users):
             res = register(client, 'user{}'.format(i), 'test{}@mail.com'.format(i), '123')
             assert res.status_code == 200
-        res = get_stats(client, initial_date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date=datetime.now().strftime(TIME_FORMAT))
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == cant_users
         for num_users in range(len(body)):
             assert body[num_users]['count'] == (num_users + 1)        
-
-    def test_failed_registration_with_same_user(self, client):
-        """ GET /stats 
-        Should: return 200 and stats"""
-
-        res = register(client, 'user', 'test@mail.com', '123')
-        assert res.status_code == 200
-
-        res = register(client, 'user', 'test@mail.com', '123')
-        assert res.status_code == 409
-        
-        res = get_stats(client, initial_date='06/29/20 18:03:31')
-        body = json.loads(res.get_data())
-        assert res.status_code == 200
-        assert len(body) == 1
-        assert body[0]['count'] == 1
-
-    def test_failed_registration_with_invalid_fields(self, client):
-        """ GET /stats 
-        Should: return 200 and stats"""
-
-        res = register(client, username='user', email='test@mail.com')
-        assert res.status_code == 400
-        
-        res = get_stats(client, initial_date='06/29/20 18:03:31')
-        body = json.loads(res.get_data())
-        assert res.status_code == 200
-        assert len(body) == 0
 
     def test_stats_with_default_date(self, client):
         """ GET /stats 
@@ -100,3 +75,43 @@ class TestMonitoringController:
         assert res.status_code == 200
         assert len(body) == 1
         assert body[0]['count'] == 1
+
+    def test_stats_out_of_range(self, client):
+        """ GET /stats 
+        Should: return 200 and stats"""
+
+        res = register(client, 'user', 'test@mail.com', '123')
+        assert res.status_code == 200
+
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date='06/29/20 18:03:31')
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert len(body) == 0
+
+    def test_failed_registration_with_same_user(self, client):
+        """ GET /stats 
+        Should: return 200 and stats"""
+
+        res = register(client, 'user', 'test@mail.com', '123')
+        assert res.status_code == 200
+
+        res = register(client, 'user', 'test@mail.com', '123')
+        assert res.status_code == 409
+        
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date=datetime.now().strftime(TIME_FORMAT))
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert len(body) == 1
+        assert body[0]['count'] == 1
+
+    def test_failed_registration_with_invalid_fields(self, client):
+        """ GET /stats 
+        Should: return 200 and stats"""
+
+        res = register(client, username='user', email='test@mail.com')
+        assert res.status_code == 400
+        
+        res = get_stats(client, initial_date='06/29/20 18:03:31', final_date=datetime.now().strftime(TIME_FORMAT))
+        body = json.loads(res.get_data())
+        assert res.status_code == 200
+        assert len(body) == 0
