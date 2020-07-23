@@ -19,3 +19,9 @@ class User(db.Document):
             'username': self.username,
             'profile': profile_info
         }
+    
+    def serialize_admin(self):
+        fields = self.serialize()
+        fields['is_blocked'] = self.is_blocked
+        return fields
+        

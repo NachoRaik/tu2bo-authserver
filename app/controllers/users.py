@@ -88,6 +88,9 @@ def construct_blueprint(current_app):
                 user = User(email=email, profile_pic=photo, username=username).save()
             else:
                 user = user[0]
+                if user.is_blocked:
+                    return error_response(401, "User is blocked")
+            
             token = jwt.encode({'email':user.email, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token': token.decode('UTF-8'), "user": user.serialize()})
         except ValueError as err:
@@ -95,7 +98,7 @@ def construct_blueprint(current_app):
 
     @bp_users.route('/', methods=['GET'], strict_slashes=False)
     def get_users():
-        users = jsonify(list(map(lambda user: user.serialize(), User.objects())))
+        users = jsonify(list(map(lambda user: user.serialize_admin(), User.objects())))
         users.status_code = 200
         return users
 
