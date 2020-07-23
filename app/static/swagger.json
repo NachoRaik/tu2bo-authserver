@@ -722,7 +722,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "date",
+            "name": "initial_date",
             "required": true,
             "schema": {
               "type": "string",

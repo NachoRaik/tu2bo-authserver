@@ -1,7 +1,7 @@
-def get_stats(client, date=None):
+def get_stats(client, initial_date=None):
     query_string = {}
-    if date != None:
-        query_string['date'] = date
+    if initial_date != None:
+        query_string['initial_date'] = initial_date
     return client.get('/stats', query_string=query_string)
 
 def register(client, username=None, email=None, password=None):

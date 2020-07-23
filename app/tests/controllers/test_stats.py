@@ -26,7 +26,7 @@ class TestMonitoringController:
         """ GET /stats 
         Should: return 200 and stats"""
 
-        res = get_stats(client, date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31')
         assert res.status_code == 200
 
         body = json.loads(res.get_data())
@@ -39,7 +39,7 @@ class TestMonitoringController:
         res = register(client, 'user', 'test@mail.com', '123')
         assert res.status_code == 200
 
-        res = get_stats(client, date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31')
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == 1
@@ -53,7 +53,7 @@ class TestMonitoringController:
         for i in range(cant_users):
             res = register(client, 'user{}'.format(i), 'test{}@mail.com'.format(i), '123')
             assert res.status_code == 200
-        res = get_stats(client, date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31')
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == cant_users
@@ -70,7 +70,7 @@ class TestMonitoringController:
         res = register(client, 'user', 'test@mail.com', '123')
         assert res.status_code == 409
         
-        res = get_stats(client, date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31')
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == 1
@@ -83,7 +83,7 @@ class TestMonitoringController:
         res = register(client, username='user', email='test@mail.com')
         assert res.status_code == 400
         
-        res = get_stats(client, date='06/29/20 18:03:31')
+        res = get_stats(client, initial_date='06/29/20 18:03:31')
         body = json.loads(res.get_data())
         assert res.status_code == 200
         assert len(body) == 0

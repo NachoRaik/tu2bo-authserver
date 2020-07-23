@@ -16,13 +16,13 @@ def ping():
 @bp_monitor.route('/stats')
 def stats():
     default_date = (datetime.now() - timedelta(days=1)).strftime(TIME_FORMAT)
-    date = request.args.get('date') if 'date' in request.args else default_date
-    date_to_timestamp = datetime.strptime(date, TIME_FORMAT)
+    initial_date = request.args.get('initial_date') if 'initial_date' in request.args else default_date
+    initial_date_to_timestamp = datetime.strptime(initial_date, TIME_FORMAT)
     response = []
     user_stats = UserStat.objects
     for stat in user_stats:
         act_timestamp = datetime.strptime(stat.timestamp, TIME_FORMAT)
-        if date_to_timestamp < act_timestamp: 
+        if initial_date_to_timestamp < act_timestamp: 
             response.append({"count": stat.num_users, "date": stat.timestamp})
     request_response = jsonify(response)
     request_response.status_code = 200
