@@ -722,11 +722,20 @@
         "parameters": [
           {
             "in": "query",
-            "name": "date",
+            "name": "initial_date",
             "required": true,
             "schema": {
               "type": "string",
               "example": "06/29/20 18:03:31"
+            }
+          },
+          {
+            "in": "query",
+            "name": "final_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06/30/20 18:03:31"
             }
           }
         ],
