@@ -44,7 +44,7 @@ def construct_blueprint(current_app):
 
         hashed_password = generate_password_hash(body['password'], method='sha256')
         try:
-            user = User(email=body['email'],password=hashed_password,username=body['username']).save()
+            user = User(email=body['email'],password=hashed_password,username=body['username'],provider="Tutubo").save()
             id = user.id
             response = jsonify({'id': id})
             response.status_code = 200
@@ -85,12 +85,12 @@ def construct_blueprint(current_app):
                 username = email.split('@')[0]
                 username = "o_" + username
                 photo = body['photoURL'] if 'photoURL' in body else None
-                user = User(email=email, profile_pic=photo, username=username).save()
+                user = User(email=email, profile_pic=photo, username=username,provider="Google").save()
             else:
                 user = user[0]
                 if user.is_blocked:
                     return error_response(401, "User is blocked")
-            
+
             token = jwt.encode({'email':user.email, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token': token.decode('UTF-8'), "user": user.serialize()})
         except ValueError as err:
@@ -162,6 +162,9 @@ def construct_blueprint(current_app):
 
         try:
             user = User.objects.get(email=body['email'])
+            if user.provider == "Google":
+                return jsonify({'response' : 'Email sent'})
+
             code = get_reset_code(app.config['TESTING'])
             msg = create_mail(user.username, user.email, code)
             mail.send(msg)
@@ -206,7 +209,7 @@ def construct_blueprint(current_app):
         user = User.objects.with_id(userId) #unique id
         if not user:
             return error_response(404, 'Could not find user')
-        
+
         user.is_blocked = request.method == 'POST'
         user.save()
         response = 'User blocked' if request.method == 'POST' else 'User unblocked'
