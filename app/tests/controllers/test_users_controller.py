@@ -239,6 +239,16 @@ class TestUsersController:
         res = client.get('/users/password?code={}&email={}'.format(context_reset_password, 'invalid@gmail.com'))
         assert res.status_code == 401
 
+    def test_invalid_reset_password_provider(self, client, mail, context_oauth2login):
+        """ POST /users/reset_password
+        Should: return 200 and doesn't send mail"""
+
+        with mail.record_messages() as outbox:
+            res = client.post('/users/reset_password', json={'email': 'olifer97@gmail.com'})
+            assert len(outbox) == 0
+            assert res.status_code == 200
+
+
     def test_change_password_success(self,client, context_reset_password):
         """ POST /users/password?code=&email
         Should: return 204"""
@@ -380,7 +390,7 @@ class TestUsersController:
         body_blocked = json.loads(res.get_data())
         assert res.status_code == 401
         assert 'User is blocked' == body_blocked['reason']
-    
+
     def test_block_user_by_id_failure(self, client): # no context_register
         """ POST /users/id/blocked
         Should: return 404 with correct message """
@@ -389,7 +399,7 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 404
         assert 'Could not find user' == body['reason']
-    
+
     def test_unblock_user_by_id_success(self, client, context_blocked):
         """ DELETE /users/id/blocked
         Should: return 204 """
@@ -404,7 +414,7 @@ class TestUsersController:
 
         res = login(client, 'olifer97@gmail.com','123')
         assert res.status_code == 200
-    
+
     def test_unblock_user_by_id_failure(self, client): # no context_register
         """ DELETE /users/id/blocked
         Should: return 404 with correct message """
@@ -413,5 +423,3 @@ class TestUsersController:
         body = json.loads(res.get_data())
         assert res.status_code == 404
         assert 'Could not find user' == body['reason']
-
-        

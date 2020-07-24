@@ -5,7 +5,7 @@ import pytest
 from config import TestingConfig
 from mongoengine import connect, disconnect
 from app import create_app
-from tests.utils import register, login, logout, block_user
+from tests.utils import register, login, logout, block_user, oauth2_login
 from flask_mail import Mail
 
 @pytest.fixture
@@ -31,6 +31,13 @@ def context_register(client, scope='function'):
     """Register user."""
     res = register(client, 'oli', 'olifer97@gmail.com', '123')
     return res.get_json()['id']
+
+
+@pytest.fixture
+def context_oauth2login(client, scope='function'):
+    """Register user by oauth."""
+    res = oauth2_login(client, 'olifer97@gmail.com')
+    return res.get_json()['user']['id']
 
 @pytest.fixture
 def context_login(client, context_register, scope='function'):
