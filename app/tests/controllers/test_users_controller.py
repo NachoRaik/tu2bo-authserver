@@ -248,7 +248,6 @@ class TestUsersController:
             assert len(outbox) == 0
             assert res.status_code == 200
 
-
     def test_change_password_success(self,client, context_reset_password):
         """ POST /users/password?code=&email
         Should: return 204"""
