@@ -19,6 +19,16 @@
         ],
         "summary": "Register user",
         "operationId": "createUser",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Created user object",
           "required": true,
@@ -92,6 +102,16 @@
         "summary": "Logs user into the system",
         "description": "",
         "operationId": "loginUser",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Login credentials",
           "required": true,
@@ -178,6 +198,16 @@
         "summary": "Logs user into the system by external service",
         "description": "",
         "operationId": "oauthLogin",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Login credentials",
           "required": true,
@@ -272,6 +302,14 @@
               "type": "string"
             },
             "required": true
+          },
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -307,6 +345,14 @@
               "type": "string"
             },
             "required": true
+          },
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -360,6 +406,16 @@
         "summary": "Get all users",
         "description": "",
         "operationId": "getUsers",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Users Profile",
@@ -386,6 +442,14 @@
         "description": "",
         "operationId": "getUserById",
         "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -427,6 +491,14 @@
         "description": "",
         "operationId": "editUserById",
         "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -485,6 +557,14 @@
         "description": "",
         "operationId": "deleteUserById",
         "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -590,6 +670,16 @@
         "summary": "Reset password",
         "description": "",
         "operationId": "reset_password",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Email to send code",
           "required": true,
@@ -627,6 +717,14 @@
         "operationId": "check_reset_code",
         "parameters": [
           {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "query",
             "name": "code",
             "required": true,
@@ -662,6 +760,14 @@
         "description": "",
         "operationId": "new_password",
         "parameters": [
+          {
+            "in": "header",
+            "name": "x-api-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "code",
