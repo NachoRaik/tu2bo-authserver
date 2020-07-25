@@ -178,7 +178,7 @@
             }
           },
           "401": {
-            "description": "Bad credentials or inexistent user",
+            "description": "Bad credentials or inexistent user or user blocked",
             "content": {
               "application/json": {
                 "schema": {
@@ -386,7 +386,7 @@
             }
           },
           "401": {
-            "description": "Token not found or invalid",
+            "description": "Token not found or invalid or user blocked",
             "content": {
               "application/json": {
                 "schema": {
@@ -592,6 +592,76 @@
         }
       }
     },
+    "/users/{id}/blocked": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Block user by id",
+        "description": "",
+        "operationId": "blockUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User blocked"
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Unblock user by id",
+        "description": "",
+        "operationId": "unblockUserById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User unblocked"
+          },
+          "404": {
+            "description": "Could not find user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/reset_password": {
       "post": {
         "tags": [
@@ -746,6 +816,51 @@
           }
         }
       }
+    },
+    "/stats": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get number of users through time",
+        "description": "",
+        "operationId": "getStats",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "initial_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06/29/20 18:03:31"
+            }
+          },
+          {
+            "in": "query",
+            "name": "final_date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06/30/20 18:03:31"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -806,6 +921,19 @@
           "reason": {
             "type": "string",
             "example": "Already taken"
+          }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 1
+          },
+          "date": {
+            "type": "string",
+            "example": "06/29/20 18:03:31"
           }
         }
       }

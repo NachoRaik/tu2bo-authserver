@@ -6,6 +6,7 @@ class User(db.Document):
     password = db.StringField(required=False)
     username = db.StringField(required=True, unique=True)
     profile_pic = db.StringField(required=False)
+    is_blocked = db.BooleanField(required=False, default=False)
 
     def serialize(self): #to select what fields to return in get
         profile_info = {}
@@ -18,3 +19,9 @@ class User(db.Document):
             'username': self.username,
             'profile': profile_info
         }
+    
+    def serialize_admin(self):
+        fields = self.serialize()
+        fields['is_blocked'] = self.is_blocked
+        return fields
+        

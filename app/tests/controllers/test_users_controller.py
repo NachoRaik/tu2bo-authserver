@@ -356,3 +356,70 @@ class TestUsersController:
         res = oauth2_login(client, 'olifer97@gmail.com')
         body = json.loads(res.get_data())
         assert body['user']['id'] == generated_id
+
+    def test_block_user_by_id_success(self, client, context_register):
+        """ POST /users/id/blocked
+        Should: return 204 """
+
+        res = login(client, 'olifer97@gmail.com','123')
+        assert res.status_code == 200
+
+        res = block_user(client, context_register)
+        assert res.status_code == 204
+
+        res = login(client, 'olifer97@gmail.com','123')
+        body_blocked = json.loads(res.get_data())
+        assert res.status_code == 401
+        assert 'User is blocked' == body_blocked['reason']
+
+    def test_block_user_by_id_success_unauthorize(self, client, context_login):
+        """ POST /users/id/blocked
+        Should: return 204 """
+
+        res = authorize(client, context_login)
+        body = json.loads(res.get_data())
+        user_id = body['user']['id']
+        assert res.status_code == 200
+
+        res = block_user(client, user_id)
+        assert res.status_code == 204
+
+        res = authorize(client, context_login)
+        body_blocked = json.loads(res.get_data())
+        assert res.status_code == 401
+        assert 'User is blocked' == body_blocked['reason']
+    
+    def test_block_user_by_id_failure(self, client): # no context_register
+        """ POST /users/id/blocked
+        Should: return 404 with correct message """
+
+        res = block_user(client, 100)
+        body = json.loads(res.get_data())
+        assert res.status_code == 404
+        assert 'Could not find user' == body['reason']
+    
+    def test_unblock_user_by_id_success(self, client, context_blocked):
+        """ DELETE /users/id/blocked
+        Should: return 204 """
+
+        res = login(client, 'olifer97@gmail.com','123')
+        body_blocked = json.loads(res.get_data())
+        assert res.status_code == 401
+        assert 'User is blocked' == body_blocked['reason']
+
+        res = unblock_user(client, context_blocked)
+        assert res.status_code == 204
+
+        res = login(client, 'olifer97@gmail.com','123')
+        assert res.status_code == 200
+    
+    def test_unblock_user_by_id_failure(self, client): # no context_register
+        """ DELETE /users/id/blocked
+        Should: return 404 with correct message """
+
+        res = unblock_user(client, 100)
+        body = json.loads(res.get_data())
+        assert res.status_code == 404
+        assert 'Could not find user' == body['reason']
+
+        

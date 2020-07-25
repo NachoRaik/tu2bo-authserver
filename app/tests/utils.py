@@ -1,9 +1,11 @@
 TEST_API_KEY = 'asdf' 
 
-def get_stats(client, date=None):
+def get_stats(client, initial_date=None, final_date=None):
     query_string = {}
-    if date != None:
-        query_string['date'] = date
+    if initial_date != None:
+        query_string['initial_date'] = initial_date
+    if final_date != None:
+        query_string['final_date'] = final_date
     return client.get('/stats', query_string=query_string)
 
 def register(client, username=None, email=None, password=None):
@@ -65,6 +67,12 @@ def validate_reset_code(client, code, email):
 def change_password(client, code, email, new_password):
     url = '/users/password?code={}&email={}'.format(code, email)
     return client.post(url, json={'password': new_password}, headers=headers_with_api_key())
+
+def block_user(client, id):
+    return client.post('/users/{}/blocked'.format(id), headers=headers_with_api_key())
+
+def unblock_user(client, id):
+    return client.delete('/users/{}/blocked'.format(id), headers=headers_with_api_key())
 
 def headers_with_api_key():
     return { 'x-api-key': TEST_API_KEY }
