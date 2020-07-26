@@ -5,7 +5,7 @@ import pytest
 from config import TestingConfig
 from mongoengine import connect, disconnect
 from app import create_app
-from tests.utils import register, login, logout, block_user, oauth2_login
+from tests.utils import register, login, logout, block_user, oauth2_login, reset_password, block_user
 from flask_mail import Mail
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def context_logout(client, context_login, scope='function'):
 @pytest.fixture
 def context_reset_password(client, context_register, scope='function'):
     """Reset password."""
-    res = client.post('/users/reset_password', json={ 'email': 'olifer97@gmail.com'})
+    res = reset_password(client, 'olifer97@gmail.com')
     return 1111 #code in testing
 
 
