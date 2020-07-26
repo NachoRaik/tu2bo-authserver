@@ -248,7 +248,7 @@ class TestUsersController:
         Should: return 200 and doesn't send mail"""
 
         with mail.record_messages() as outbox:
-            res = client.post('/users/reset_password', json={'email': 'olifer97@gmail.com'})
+            res = reset_password(client,'olifer97@gmail.com')
             assert len(outbox) == 0
             assert res.status_code == 200
 
