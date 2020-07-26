@@ -156,15 +156,13 @@ def construct_blueprint(current_app):
 
     @bp_users.route('/reset_password', methods=['POST'], strict_slashes=False)
     def user_reset_password():
+        MSG = "Check your mail account for the reset code. Keep in mind non-existing and Google associated accounts cannot reset their passwords"
         body = request.get_json()
         if (not body or not Counter(RESET_PASSWORD_FIELDS)==Counter(body.keys())):
             return error_response(400, 'Missing fields')
 
         try:
-            user = User.objects.get(email=body['email'])
-            if user.provider == "Google":
-                return jsonify({'response' : 'Email sent'})
-
+            user = User.objects.get(email=body['email'],provider="Tutubo")
             code = get_reset_code(app.config['TESTING'])
             msg = create_mail(user.username, user.email, code)
             mail.send(msg)
@@ -172,9 +170,9 @@ def construct_blueprint(current_app):
             ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + app.config['RESET_CODE_TTL']).save()
 
             app.logger.debug("Reset password mail sent to %s",body['email'])
-            return jsonify({'response' : 'Email sent'})
+            return jsonify({'response' : MSG})
         except User.DoesNotExist:
-            return jsonify({'response' : 'Email sent'})
+            return jsonify({'response' : MSG})
 
     @bp_users.route('/password', methods=['GET','POST'], strict_slashes=False)
     def user_new_password():
