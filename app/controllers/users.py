@@ -46,7 +46,7 @@ def construct_blueprint(current_app):
 
         hashed_password = generate_password_hash(body['password'], method='sha256')
         try:
-            user = User(email=body['email'],password=hashed_password,username=body['username']).save()
+            user = User(email=body['email'],password=hashed_password,username=body['username'],provider="Tutubo").save()
             id = user.id
             response = jsonify({'id': id})
             response.status_code = 200
@@ -89,12 +89,12 @@ def construct_blueprint(current_app):
                 username = email.split('@')[0]
                 username = "o_" + username
                 photo = body['photoURL'] if 'photoURL' in body else None
-                user = User(email=email, profile_pic=photo, username=username).save()
+                user = User(email=email, profile_pic=photo, username=username,provider="Google").save()
             else:
                 user = user[0]
                 if user.is_blocked:
                     return error_response(401, "User is blocked")
-            
+
             token = jwt.encode({'email':user.email, 'exp':datetime.datetime.utcnow() + datetime.timedelta(days=7)}, app.config['SECRET_KEY'], algorithm=ENCODING_ALGORITHM)
             return jsonify({'token': token.decode('UTF-8'), "user": user.serialize()})
         except ValueError as err:
@@ -165,12 +165,13 @@ def construct_blueprint(current_app):
     @bp_users.route('/reset_password', methods=['POST'], strict_slashes=False)
     @has_api_key
     def user_reset_password():
+        MSG = "Check your mail account for the reset code. Keep in mind non-existing and Google associated accounts cannot reset their passwords"
         body = request.get_json()
         if (not body or not Counter(RESET_PASSWORD_FIELDS)==Counter(body.keys())):
             return error_response(400, 'Missing fields')
 
         try:
-            user = User.objects.get(email=body['email'])
+            user = User.objects.get(email=body['email'],provider="Tutubo")
             code = get_reset_code(app.config['TESTING'])
             msg = create_mail(user.username, user.email, code)
             mail.send(msg)
@@ -178,9 +179,9 @@ def construct_blueprint(current_app):
             ResetPasswordCode(user_mail=body['email'], code=code, expire_at=datetime.datetime.utcnow() + app.config['RESET_CODE_TTL']).save()
 
             app.logger.debug("Reset password mail sent to %s",body['email'])
-            return jsonify({'response' : 'Email sent'})
+            return jsonify({'response' : MSG})
         except User.DoesNotExist:
-            return jsonify({'response' : 'Email sent'})
+            return jsonify({'response' : MSG})
 
     @bp_users.route('/password', methods=['GET','POST'], strict_slashes=False)
     @has_api_key
@@ -217,7 +218,7 @@ def construct_blueprint(current_app):
         user = User.objects.with_id(userId) #unique id
         if not user:
             return error_response(404, 'Could not find user')
-        
+
         user.is_blocked = request.method == 'POST'
         user.save()
         response = 'User blocked' if request.method == 'POST' else 'User unblocked'

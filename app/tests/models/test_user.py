@@ -23,10 +23,11 @@ class TestUser:
         """ Create user in db
         Should: return save user in db """
 
-        user = User(username='oli', email="olifer97@gmail.com", password="123")
+        user = User(username='oli', email="olifer97@gmail.com", password="123", provider="Tutubo")
         user.save()
 
         fresh_user = User.objects().first()
         assert fresh_user.username ==  'oli'
         assert fresh_user.email ==  'olifer97@gmail.com'
         assert fresh_user.password == '123'
+        assert fresh_user.provider == 'Tutubo'
